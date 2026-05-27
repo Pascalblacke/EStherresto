@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🍽️ Esther Resto</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap');
@@ -12,8 +14,8 @@
   --green:#2ECC71; --orange:#FF8C42; --blue:#3498DB;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:100vw;height:100vh;user-select:none;-webkit-tap-highlight-color:transparent;}
-.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;align-items:center;justify-content:center;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:100vw;height:100vh;height:100dvh;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+.screen{display:none;width:100%;height:100%;height:100dvh;position:absolute;top:0;left:0;flex-direction:column;align-items:center;justify-content:center;}
 .screen.active{display:flex;}
 
 /* TITLE */
@@ -338,183 +340,218 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
 #kitchenArea::-webkit-scrollbar-thumb{background:rgba(255,107,157,0.4);border-radius:3px;}
 
 /* ======================== MOBILE RESPONSIVE ======================== */
+/* iPhone safe area support */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @media (max-width: 768px) {
 
-  /* --- TITLE SCREEN --- */
-  .title-logo { font-size: 46px; }
-  .title-emoji { font-size: 40px; }
-  .title-sub { font-size: 15px; margin: 8px 0 4px; }
-  .birthday-badge { font-size: 13px; padding: 8px 18px; margin: 8px 0 22px; }
-  .btn-play { font-size: 20px; padding: 15px 45px; }
+  /* === GENERAL === */
+  body { height: 100dvh; overflow: hidden; }
+  .screen { height: 100dvh; }
 
-  /* --- LEVEL SELECT --- */
-  #levelScreen { justify-content: flex-start; padding-top: 20px; }
-  .level-title { font-size: 30px; margin-bottom: 16px; }
+  /* === TITLE SCREEN === */
+  #titleScreen { padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px); justify-content: center; gap: 0; }
+  .title-logo { font-size: 42px; margin-bottom: 0; }
+  .title-emoji { font-size: 36px; }
+  .title-sub { font-size: 14px; margin: 6px 0 4px; }
+  .birthday-badge { font-size: 13px; padding: 8px 18px; margin: 6px 0 18px; }
+  .btn-play { font-size: 22px; padding: 16px 50px; width: 85%; text-align: center; }
+  .btn-sm { font-size: 14px; padding: 11px 24px; }
+  #titleScreen > div[style*="margin-top:15px"] { font-size: 11px; margin-top: 10px !important; }
+  #saveIndicator { font-size: 11px !important; }
+
+  /* === NAME SCREEN === */
+  #nameScreen { padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px); }
+  #nameScreen .title-logo { font-size: 38px; }
+  #nameInput { font-size: 16px !important; } /* prevent iOS zoom on focus */
+
+  /* === LEADERBOARD === */
+  #leaderboardScreen { padding-top: calc(var(--safe-top) + 10px); padding-bottom: calc(var(--safe-bottom) + 10px); }
+  #leaderboardScreen .level-title { font-size: 32px; margin-top: 10px; margin-bottom: 15px; }
+
+  /* === LEVEL SELECT === */
+  #levelScreen { justify-content: flex-start; padding-top: calc(var(--safe-top) + 16px); padding-bottom: calc(var(--safe-bottom) + 16px); }
+  .level-title { font-size: 28px; margin-bottom: 14px; }
   .levels-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 10px;
+    padding: 8px 14px;
     max-width: 100%;
+    width: 100%;
   }
-  .level-btn { width: 72px; height: 72px; border-radius: 14px; font-size: 15px; }
-  .level-btn .lvl-emoji { font-size: 20px; }
+  .level-btn { width: 100%; height: 72px; border-radius: 14px; font-size: 14px; }
+  .level-btn .lvl-emoji { font-size: 22px; }
   .level-btn .stars { font-size: 10px; }
 
-  /* --- HUD --- */
-  #hud { height: 52px; padding: 0 12px; }
+  /* === HUD === */
+  #hud {
+    height: 54px;
+    padding: 0 12px;
+    padding-top: var(--safe-top);
+    height: calc(54px + var(--safe-top));
+  }
   .hud-score { font-size: 20px; }
-  .hud-info { font-size: 13px; gap: 5px; }
+  .hud-info { font-size: 13px; gap: 6px; }
   #hudTimer { font-size: 18px !important; }
   #hudLevel { font-size: 11px !important; opacity: 0.85; }
   #hudGoal { font-size: 10px !important; opacity: 0.75; }
+  #pauseBtn { width: 32px !important; height: 32px !important; font-size: 16px !important; }
 
-  /* --- GAME AREA: column layout, kitchen at bottom --- */
+  /* === GAME AREA === */
   #gameArea {
-    top: 52px;
+    top: calc(54px + var(--safe-top));
     flex-direction: column;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
   }
 
-  /* Restaurant takes all remaining width/height */
   #restaurantArea {
     flex: 1;
     width: 100%;
     min-height: 0;
+    overflow: hidden;
   }
 
-  /* Kitchen becomes a horizontal bottom strip */
+  /* Kitchen = horizontal scrollable strip at bottom */
   #kitchenArea {
     width: 100%;
-    height: 160px;
+    height: 155px;
     flex-shrink: 0;
     flex-direction: column;
-    padding: 6px 10px 8px;
-    gap: 5px;
+    padding: 6px 10px calc(var(--safe-bottom) + 6px);
+    gap: 4px;
     overflow: hidden;
     background: linear-gradient(180deg, #2D1B33, #3D2B43);
   }
+  .kitchen-title { font-size: 13px; margin-bottom: 0; text-align: left; padding: 0 2px; }
 
-  .kitchen-title {
-    font-size: 14px;
-    margin-bottom: 0;
-    text-align: left;
-    padding: 0 4px;
-  }
-
-  /* Menu items scroll horizontally */
   #menuItems {
-    display: flex;
-    flex-direction: row;
+    display: flex !important;
+    flex-direction: row !important;
     gap: 8px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,107,157,0.4) transparent;
+    padding-bottom: 2px;
     -webkit-overflow-scrolling: touch;
     flex: 1;
-    align-items: stretch;
+    align-items: center;
+    scrollbar-width: none;
   }
-  #menuItems::-webkit-scrollbar { height: 3px; }
-  #menuItems::-webkit-scrollbar-thumb { background: rgba(255,107,157,0.4); border-radius: 2px; }
+  #menuItems::-webkit-scrollbar { display: none; }
 
   .menu-item {
-    flex-direction: column;
-    align-items: center;
-    min-width: 95px;
-    max-width: 95px;
-    padding: 8px 6px;
+    flex-direction: column !important;
+    align-items: center !important;
+    min-width: 88px;
+    max-width: 88px;
+    padding: 8px 5px;
     gap: 2px;
     flex-shrink: 0;
     border-radius: 12px;
     text-align: center;
     justify-content: center;
   }
-
-  .dish-emoji { font-size: 26px; }
-  .dish-name { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+  .dish-emoji { font-size: 24px; }
+  .dish-name { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
   .dish-time { font-size: 9px; }
   .dish-price { font-size: 11px; }
-  .cook-status { font-size: 9px; }
+  .cook-status { font-size: 8px; }
+  .cook-progress { margin-top: 3px; }
+  .dish-info { width: 100%; }
 
-  /* --- TABLE ZONES --- */
-  .customer { font-size: 26px; }
+  /* === TABLES === */
+  .customer { font-size: 24px; }
   .customer-name { font-size: 9px; }
-  .patience-bar { width: 50px; height: 5px; }
-  .speech-bubble { font-size: 16px; top: -38px; padding: 4px 8px; }
+  .patience-bar { width: 46px; height: 5px; }
+  .speech-bubble { font-size: 15px; top: -36px; padding: 3px 7px; }
+  .table-zone { border-width: 2px; }
 
-  /* --- ORDER PANEL --- */
+  /* === ORDER PANEL === */
   #orderPanel {
-    bottom: 170px; /* sits above kitchen */
-    min-width: 260px;
-    max-width: calc(100vw - 30px);
-    padding: 12px 15px;
+    bottom: calc(160px + var(--safe-bottom));
+    min-width: 240px;
+    max-width: calc(100vw - 24px);
+    padding: 12px 14px;
     border-radius: 16px;
+    left: 50%;
+    transform: translateX(-50%);
   }
-  #orderPanel h3 { font-size: 16px; margin-bottom: 8px; }
-  .order-item { font-size: 13px; padding: 6px 12px; }
-  .btn-green { font-size: 13px; padding: 9px 18px; }
-  .btn-sm { font-size: 13px; padding: 9px 18px; }
+  #orderPanel h3 { font-size: 15px; margin-bottom: 8px; }
+  .order-item { font-size: 13px; padding: 6px 11px; }
+  .btn-green { font-size: 13px; padding: 10px 20px; }
 
-  /* --- LEVEL COMPLETE --- */
-  .complete-card { padding: 25px 20px; max-width: calc(100vw - 40px); border-radius: 20px; }
-  .complete-title { font-size: 28px; }
-  .complete-stars { font-size: 36px; margin: 10px 0; }
-  .complete-score { font-size: 18px; }
-  .complete-tip { font-size: 13px; margin-bottom: 15px; }
-  .btn-pink { font-size: 15px; padding: 12px 28px; }
+  /* === LEVEL COMPLETE === */
+  .complete-card { padding: 24px 18px; max-width: calc(100vw - 32px); border-radius: 20px; }
+  .complete-title { font-size: 26px; }
+  .complete-stars { font-size: 34px; margin: 8px 0; }
+  .complete-score { font-size: 17px; }
+  .complete-tip { font-size: 12px; margin-bottom: 14px; }
+  .btn-pink { font-size: 14px; padding: 11px 26px; }
 
-  /* --- CAKE SCREEN --- */
-  .cake-hud { padding: 10px 15px; }
-  .cake-hud-title { font-size: 15px; }
-  .cake-timer-display { font-size: 15px; padding: 6px 14px; }
-
-  .cake-main {
-    flex-direction: column;
-    padding: 10px 12px;
-    gap: 10px;
-    align-items: stretch;
-    overflow-y: auto;
-  }
-
-  .recipe-card { min-width: unset; width: 100%; padding: 14px; }
-  .recipe-title { font-size: 16px; margin-bottom: 10px; }
+  /* === CAKE SCREEN === */
+  .cake-hud { padding: calc(var(--safe-top) + 8px) 14px 8px; }
+  .cake-hud-title { font-size: 14px; }
+  .cake-timer-display { font-size: 14px; padding: 5px 12px; }
+  .cake-main { flex-direction: column; padding: 10px 12px; gap: 10px; align-items: stretch; overflow-y: auto; }
+  .recipe-card { min-width: unset; width: 100%; padding: 12px; }
+  .recipe-title { font-size: 15px; margin-bottom: 8px; }
   .recipe-step { padding: 7px 8px; margin-bottom: 5px; }
-  .step-num { width: 24px; height: 24px; font-size: 12px; }
-  .step-emoji { font-size: 18px; }
-  .step-text { font-size: 12px; }
-
-  .cake-workbench { width: 100%; gap: 10px; }
-  .workbench-table { min-height: 100px; padding: 12px; gap: 8px; border-radius: 18px; }
-  .ingredient-btn { min-width: 72px; padding: 8px 10px; border-radius: 14px; }
-  .ingredient-emoji { font-size: 28px; }
+  .step-num { width: 22px; height: 22px; font-size: 11px; }
+  .step-emoji { font-size: 17px; }
+  .step-text { font-size: 11px; }
+  .cake-workbench { width: 100%; gap: 8px; }
+  .workbench-table { min-height: 90px; padding: 10px; gap: 8px; border-radius: 16px; }
+  .ingredient-btn { min-width: 68px; padding: 8px 8px; border-radius: 12px; }
+  .ingredient-emoji { font-size: 26px; }
   .ingredient-name { font-size: 10px; }
-
-  .cake-preview-area { min-width: unset; width: 100%; padding: 12px; flex-direction: row; justify-content: center; gap: 15px; }
-  .cake-build { font-size: 50px; min-height: auto; }
+  .cake-preview-area { min-width: unset; width: 100%; padding: 10px; flex-direction: row; justify-content: center; gap: 12px; }
+  .cake-build { font-size: 48px; min-height: auto; }
   .cake-preview-label { font-size: 11px; }
   #cakeProgress { font-size: 11px !important; }
+  .action-row { gap: 8px; justify-content: center; }
+  .cake-action-btn { font-size: 13px; padding: 10px 20px; }
 
-  .action-row { gap: 10px; justify-content: center; }
-  .cake-action-btn { font-size: 14px; padding: 10px 22px; }
+  /* === BIRTHDAY SCREEN === */
+  #birthdayScreen { padding: var(--safe-top) 0 var(--safe-bottom); }
+  .birthday-title { font-size: 50px; }
+  .birthday-num { font-size: 76px; }
+  .birthday-message { font-size: 19px; margin: 8px 0 6px; }
+  .birthday-sub { font-size: 13px; padding: 14px 16px; margin-bottom: 14px; line-height: 1.7; max-width: calc(100vw - 32px); }
+  .cake-big { font-size: 68px; }
+  .btn-replay { font-size: 15px; padding: 13px 34px; }
 
-  /* --- BIRTHDAY SCREEN --- */
-  .birthday-title { font-size: 52px; }
-  .birthday-num { font-size: 80px; }
-  .birthday-message { font-size: 20px; margin: 10px 0 8px; }
-  .birthday-sub { font-size: 13px; padding: 14px 18px; margin-bottom: 15px; line-height: 1.7; }
-  .cake-big { font-size: 70px; }
-  .btn-replay { font-size: 16px; padding: 13px 35px; }
+  /* === NOTIFICATIONS === */
+  .notif { top: calc(60px + var(--safe-top)); font-size: 13px; padding: 8px 18px; max-width: 90vw; white-space: normal; text-align: center; }
+
+  /* === PAUSE OVERLAY === */
+  #pauseOverlay > div { max-width: calc(100vw - 40px); padding: 30px 24px; }
 }
 
-/* Extra small screens (iPhone SE, older Androids) */
-@media (max-width: 380px) {
-  .title-logo { font-size: 38px; }
-  .levels-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .level-btn { width: 62px; height: 62px; }
-  #kitchenArea { height: 150px; }
-  .menu-item { min-width: 82px; max-width: 82px; }
-  .birthday-title { font-size: 42px; }
-  .birthday-num { font-size: 65px; }
+/* iPhone SE / small Android */
+@media (max-width: 375px) {
+  .title-logo { font-size: 36px; }
+  .btn-play { font-size: 19px; padding: 14px 40px; }
+  .levels-grid { gap: 8px; padding: 6px 10px; }
+  .level-btn { height: 65px; }
+  .level-btn .lvl-emoji { font-size: 19px; }
+  #kitchenArea { height: 145px; }
+  .menu-item { min-width: 80px; max-width: 80px; }
+  .birthday-title { font-size: 40px; }
+  .birthday-num { font-size: 62px; }
+  .birthday-sub { font-size: 12px; }
+}
+
+/* iPhone Pro Max / large phones */
+@media (min-width: 390px) and (max-width: 768px) {
+  .levels-grid { grid-template-columns: repeat(4, 1fr); }
+  .level-btn { height: 78px; }
+  #kitchenArea { height: 162px; }
+  .menu-item { min-width: 94px; max-width: 94px; }
 }
 </style>
 </head>
