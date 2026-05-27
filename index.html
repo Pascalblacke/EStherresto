@@ -325,7 +325,54 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
 .btn-replay:hover{transform:translateY(-3px);box-shadow:0 9px 0 rgba(0,0,0,0.3),0 0 50px rgba(255,107,157,0.8);}
 .btn-replay:active{transform:translateY(3px);}
 
+/* ======================== BONUS SHOP ======================== */
+.shop-item {
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s;
+}
+.shop-item.owned { background: rgba(46,204,113,0.15); border-color: rgba(46,204,113,0.5); }
+.shop-item.affordable { border-color: rgba(255,215,0,0.6); cursor: pointer; }
+.shop-item.affordable:active { transform: scale(0.97); }
+.shop-item.too-expensive { opacity: 0.5; }
+.shop-icon { font-size: 38px; flex-shrink: 0; }
+.shop-info { flex: 1; min-width: 0; }
+.shop-name { color: white; font-weight: 900; font-size: 15px; }
+.shop-desc { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 2px; line-height: 1.4; }
+.shop-badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-top: 4px; display: inline-block; }
+.shop-btn {
+  flex-shrink: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.shop-btn-buy { background: linear-gradient(135deg, #FFD700, #FF8C42); color: #2D1B33; }
+.shop-btn-owned { background: rgba(46,204,113,0.3); color: #2ECC71; cursor: default; }
+.shop-btn-no { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); cursor: not-allowed; }
+
+/* Bonus active indicators in HUD */
+#bonusBar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.bonus-pill { font-size: 11px; background: rgba(255,215,0,0.25); color: #FFD700; padding: 2px 8px; border-radius: 10px; font-weight: 800; }
+
+@media (max-width: 768px) {
+  .shop-icon { font-size: 30px; }
+  .shop-name { font-size: 14px; }
+  .shop-desc { font-size: 11px; }
+  .shop-btn { font-size: 12px; padding: 7px 12px; }
+}
+
 /* NOTIFICATIONS */
+
 .notif{
   position:fixed;top:80px;left:50%;transform:translateX(-50%);
   background:rgba(255,255,255,0.97);border-radius:50px;padding:10px 22px;
@@ -630,6 +677,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
     <div class="hud-info" style="flex-direction:column;align-items:center;gap:2px;">
       <span id="hudLevel" style="font-size:14px;opacity:0.8;">Niveau 1</span>
       <span id="hudGoal" style="font-size:13px;opacity:0.7;">Objectif: 500pts</span>
+      <div id="bonusBar"></div>
     </div>
     <div class="hud-info" style="gap:12px;">
       <span id="hudTimer" style="font-size:26px;">⏱️ 2:00</span>
@@ -667,6 +715,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
   </div>
 </div>
 
+
+<!-- ===== BONUS SHOP ===== -->
+<div id="shopScreen" class="screen" style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);overflow-y:auto;">
+  <div style="z-index:1;width:100%;max-width:520px;padding:20px 16px 30px;display:flex;flex-direction:column;align-items:center;">
+    <div style="font-family:'Pacifico',cursive;font-size:36px;color:#FFD700;text-shadow:0 0 20px rgba(255,215,0,0.6);margin-bottom:4px;">🛍️ Boutique</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:700;margin-bottom:6px;">Dépense tes gains pour t'améliorer !</div>
+    <div style="background:rgba(255,215,0,0.15);border:2px solid rgba(255,215,0,0.4);border-radius:50px;padding:8px 24px;font-size:20px;font-weight:900;color:#FFD700;margin-bottom:18px;">
+      💰 <span id="shopCoins">0</span> pièces disponibles
+    </div>
+    <div id="shopItems" style="width:100%;display:flex;flex-direction:column;gap:12px;"></div>
+    <button class="btn btn-sm" style="margin-top:20px;background:rgba(255,255,255,0.15);color:white;border:2px solid rgba(255,255,255,0.3);" onclick="closeShop()">Continuer sans acheter →</button>
+  </div>
+</div>
+
 <!-- ===== LEVEL COMPLETE ===== -->
 <div id="levelComplete" class="screen">
   <div class="complete-card">
@@ -674,6 +736,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
     <div class="complete-stars" id="completeStars">⭐⭐⭐</div>
     <div class="complete-score" id="completeScore">Score: 1500</div>
     <div class="complete-tip" id="completeTip">Excellent travail!</div>
+    <div id="completeCoins" style="color:#FF8C42;font-weight:900;font-size:15px;margin-bottom:10px;display:none;"></div>
     <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
       <button class="btn btn-pink" onclick="nextLevel()">Niveau Suivant →</button>
       <button class="btn btn-sm" onclick="replayLevel()">↺ Rejouer</button>
@@ -734,30 +797,250 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
 <script>
 // ===================== GAME DATA =====================
 const LEVELS = [
-  {id:1,name:"Le Petit Café",emoji:"☕",theme:"cafe",tables:2,customers:6,time:90,goal:300,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"croissant",name:"Croissant",emoji:"🥐",price:80,cookTime:3}]},
-  {id:2,name:"Brunch du Matin",emoji:"🥞",theme:"cafe",tables:2,customers:8,time:100,goal:500,menu:[{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"oj",name:"Jus d'orange",emoji:"🍊",price:60,cookTime:1},{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2}]},
-  {id:3,name:"Heure de Pointe",emoji:"⚡",theme:"cafe",tables:3,customers:10,time:110,goal:800,menu:[{id:"tea",name:"Thé",emoji:"🍵",price:50,cookTime:2},{id:"muffin",name:"Muffin",emoji:"🧁",price:100,cookTime:5},{id:"sandwich",name:"Sandwich",emoji:"🥪",price:130,cookTime:4}]},
-  {id:4,name:"Brunch VIP",emoji:"👑",theme:"cafe",tables:3,customers:12,time:120,goal:1100,menu:[{id:"eggs",name:"Œufs Bénédict",emoji:"🍳",price:140,cookTime:6},{id:"smoothie",name:"Smoothie",emoji:"🥤",price:110,cookTime:3},{id:"waffle",name:"Gaufre",emoji:"🧇",price:120,cookTime:5}]},
-  {id:5,name:"Week-end Chargé",emoji:"📅",theme:"cafe",tables:4,customers:15,time:130,goal:1500,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"toast",name:"Toast Avocat",emoji:"🥑",price:160,cookTime:5}]},
-  {id:6,name:"Le Bistrot",emoji:"🥗",theme:"bistro",tables:3,customers:12,time:130,goal:1800,menu:[{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4},{id:"soup",name:"Soupe",emoji:"🍲",price:130,cookTime:5},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8}]},
-  {id:7,name:"Service du Midi",emoji:"🍝",theme:"bistro",tables:3,customers:14,time:140,goal:2200,menu:[{id:"pasta",name:"Pâtes Carbonara",emoji:"🍝",price:180,cookTime:6},{id:"risotto",name:"Risotto",emoji:"🍚",price:200,cookTime:8},{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4}]},
-  {id:8,name:"Cuisine du Monde",emoji:"🌍",theme:"bistro",tables:4,customers:14,time:140,goal:2600,menu:[{id:"sushi",name:"Sushi",emoji:"🍣",price:220,cookTime:7},{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"curry",name:"Curry",emoji:"🍛",price:190,cookTime:7}]},
-  {id:9,name:"Dîner Romantique",emoji:"🕯️",theme:"bistro",tables:4,customers:16,time:150,goal:3000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8},{id:"wine",name:"Vin Rosé",emoji:"🍷",price:180,cookTime:2}]},
-  {id:10,name:"Grand Rush",emoji:"🔥",theme:"bistro",tables:5,customers:18,time:150,goal:3800,menu:[{id:"pizza",name:"Pizza",emoji:"🍕",price:170,cookTime:6},{id:"burger",name:"Burger Gourmet",emoji:"🍔",price:190,cookTime:5},{id:"pasta",name:"Pâtes",emoji:"🍝",price:180,cookTime:6}]},
-  {id:11,name:"Restaurant Étoilé",emoji:"⭐",theme:"luxury",tables:4,customers:14,time:150,goal:4500,menu:[{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"truffle",name:"Pasta Truffe",emoji:"🍝",price:380,cookTime:9},{id:"wine",name:"Grand Cru",emoji:"🍷",price:250,cookTime:2}]},
-  {id:12,name:"Soirée Prestige",emoji:"💎",theme:"luxury",tables:4,customers:16,time:160,goal:5200,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"scallop",name:"Saint-Jacques",emoji:"🐚",price:280,cookTime:7},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
-  {id:13,name:"Chef Invité",emoji:"👨‍🍳",theme:"luxury",tables:5,customers:16,time:160,goal:6000,menu:[{id:"ramen",name:"Ramen Premium",emoji:"🍜",price:300,cookTime:9},{id:"dim",name:"Dim Sum",emoji:"🥟",price:260,cookTime:7},{id:"sashimi",name:"Sashimi",emoji:"🐟",price:310,cookTime:8}]},
-  {id:14,name:"Gala Gourmand",emoji:"🎩",theme:"luxury",tables:5,customers:18,time:170,goal:7000,menu:[{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
-  {id:15,name:"Service Final",emoji:"🏆",theme:"luxury",tables:6,customers:20,time:170,goal:8500,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"wine",name:"Bordeaux",emoji:"🍷",price:250,cookTime:2},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
-  {id:16,name:"Cuisine Asiatique",emoji:"🥢",theme:"asia",tables:5,customers:18,time:160,goal:9000,menu:[{id:"ramen",name:"Ramen",emoji:"🍜",price:300,cookTime:9},{id:"sushi",name:"Sushi Roll",emoji:"🍣",price:220,cookTime:7},{id:"dumplings",name:"Gyoza",emoji:"🥟",price:200,cookTime:6}]},
-  {id:17,name:"Fiesta Mexicaine",emoji:"🎉",theme:"mexico",tables:5,customers:20,time:160,goal:10000,menu:[{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"burrito",name:"Burrito",emoji:"🌯",price:200,cookTime:6},{id:"nachos",name:"Nachos",emoji:"🧀",price:180,cookTime:5}]},
-  {id:18,name:"Traiteur de Luxe",emoji:"🥘",theme:"luxury",tables:6,customers:20,time:170,goal:11500,menu:[{id:"curry",name:"Curry Royal",emoji:"🍛",price:250,cookTime:8},{id:"kebab",name:"Kebab Gourmet",emoji:"🥙",price:200,cookTime:6},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
-  {id:19,name:"Nuit Gastronomique",emoji:"🌙",theme:"luxury",tables:6,customers:22,time:180,goal:13000,menu:[{id:"oyster",name:"Huîtres",emoji:"🦪",price:280,cookTime:5},{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"wine",name:"Pétrus",emoji:"🍷",price:350,cookTime:2}]},
-  {id:20,name:"Le Grand Service",emoji:"👑",theme:"luxury",tables:7,customers:24,time:180,goal:15000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"truffle",name:"Truffe",emoji:"🍝",price:380,cookTime:9},{id:"champagne",name:"Dom Pérignon",emoji:"🥂",price:300,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:1,name:"Le Petit Café",emoji:"☕",theme:"cafe",tables:2,customers:6,time:75,goal:300,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"croissant",name:"Croissant",emoji:"🥐",price:80,cookTime:3}]},
+  {id:2,name:"Brunch du Matin",emoji:"🥞",theme:"cafe",tables:2,customers:8,time:75,goal:500,menu:[{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"oj",name:"Jus d'orange",emoji:"🍊",price:60,cookTime:1},{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2}]},
+  {id:3,name:"Heure de Pointe",emoji:"⚡",theme:"cafe",tables:3,customers:10,time:75,goal:800,menu:[{id:"tea",name:"Thé",emoji:"🍵",price:50,cookTime:2},{id:"muffin",name:"Muffin",emoji:"🧁",price:100,cookTime:5},{id:"sandwich",name:"Sandwich",emoji:"🥪",price:130,cookTime:4}]},
+  {id:4,name:"Brunch VIP",emoji:"👑",theme:"cafe",tables:3,customers:12,time:75,goal:1100,menu:[{id:"eggs",name:"Œufs Bénédict",emoji:"🍳",price:140,cookTime:6},{id:"smoothie",name:"Smoothie",emoji:"🥤",price:110,cookTime:3},{id:"waffle",name:"Gaufre",emoji:"🧇",price:120,cookTime:5}]},
+  {id:5,name:"Week-end Chargé",emoji:"📅",theme:"cafe",tables:4,customers:15,time:75,goal:1500,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"toast",name:"Toast Avocat",emoji:"🥑",price:160,cookTime:5}]},
+  {id:6,name:"Le Bistrot",emoji:"🥗",theme:"bistro",tables:3,customers:12,time:75,goal:1800,menu:[{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4},{id:"soup",name:"Soupe",emoji:"🍲",price:130,cookTime:5},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8}]},
+  {id:7,name:"Service du Midi",emoji:"🍝",theme:"bistro",tables:3,customers:14,time:75,goal:2200,menu:[{id:"pasta",name:"Pâtes Carbonara",emoji:"🍝",price:180,cookTime:6},{id:"risotto",name:"Risotto",emoji:"🍚",price:200,cookTime:8},{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4}]},
+  {id:8,name:"Cuisine du Monde",emoji:"🌍",theme:"bistro",tables:4,customers:14,time:75,goal:2600,menu:[{id:"sushi",name:"Sushi",emoji:"🍣",price:220,cookTime:7},{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"curry",name:"Curry",emoji:"🍛",price:190,cookTime:7}]},
+  {id:9,name:"Dîner Romantique",emoji:"🕯️",theme:"bistro",tables:4,customers:16,time:75,goal:3000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8},{id:"wine",name:"Vin Rosé",emoji:"🍷",price:180,cookTime:2}]},
+  {id:10,name:"Grand Rush",emoji:"🔥",theme:"bistro",tables:5,customers:18,time:75,goal:3800,menu:[{id:"pizza",name:"Pizza",emoji:"🍕",price:170,cookTime:6},{id:"burger",name:"Burger Gourmet",emoji:"🍔",price:190,cookTime:5},{id:"pasta",name:"Pâtes",emoji:"🍝",price:180,cookTime:6}]},
+  {id:11,name:"Restaurant Étoilé",emoji:"⭐",theme:"luxury",tables:4,customers:14,time:75,goal:4500,menu:[{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"truffle",name:"Pasta Truffe",emoji:"🍝",price:380,cookTime:9},{id:"wine",name:"Grand Cru",emoji:"🍷",price:250,cookTime:2}]},
+  {id:12,name:"Soirée Prestige",emoji:"💎",theme:"luxury",tables:4,customers:16,time:75,goal:5200,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"scallop",name:"Saint-Jacques",emoji:"🐚",price:280,cookTime:7},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
+  {id:13,name:"Chef Invité",emoji:"👨‍🍳",theme:"luxury",tables:5,customers:16,time:75,goal:6000,menu:[{id:"ramen",name:"Ramen Premium",emoji:"🍜",price:300,cookTime:9},{id:"dim",name:"Dim Sum",emoji:"🥟",price:260,cookTime:7},{id:"sashimi",name:"Sashimi",emoji:"🐟",price:310,cookTime:8}]},
+  {id:14,name:"Gala Gourmand",emoji:"🎩",theme:"luxury",tables:5,customers:18,time:75,goal:7000,menu:[{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:15,name:"Service Final",emoji:"🏆",theme:"luxury",tables:6,customers:20,time:75,goal:8500,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"wine",name:"Bordeaux",emoji:"🍷",price:250,cookTime:2},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:16,name:"Cuisine Asiatique",emoji:"🥢",theme:"asia",tables:5,customers:18,time:75,goal:9000,menu:[{id:"ramen",name:"Ramen",emoji:"🍜",price:300,cookTime:9},{id:"sushi",name:"Sushi Roll",emoji:"🍣",price:220,cookTime:7},{id:"dumplings",name:"Gyoza",emoji:"🥟",price:200,cookTime:6}]},
+  {id:17,name:"Fiesta Mexicaine",emoji:"🎉",theme:"mexico",tables:5,customers:20,time:75,goal:10000,menu:[{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"burrito",name:"Burrito",emoji:"🌯",price:200,cookTime:6},{id:"nachos",name:"Nachos",emoji:"🧀",price:180,cookTime:5}]},
+  {id:18,name:"Traiteur de Luxe",emoji:"🥘",theme:"luxury",tables:6,customers:20,time:75,goal:11500,menu:[{id:"curry",name:"Curry Royal",emoji:"🍛",price:250,cookTime:8},{id:"kebab",name:"Kebab Gourmet",emoji:"🥙",price:200,cookTime:6},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
+  {id:19,name:"Nuit Gastronomique",emoji:"🌙",theme:"luxury",tables:6,customers:22,time:75,goal:13000,menu:[{id:"oyster",name:"Huîtres",emoji:"🦪",price:280,cookTime:5},{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"wine",name:"Pétrus",emoji:"🍷",price:350,cookTime:2}]},
+  {id:20,name:"Le Grand Service",emoji:"👑",theme:"luxury",tables:7,customers:24,time:75,goal:15000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"truffle",name:"Truffe",emoji:"🍝",price:380,cookTime:9},{id:"champagne",name:"Dom Pérignon",emoji:"🥂",price:300,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
   {id:21,name:"Gâteau d'Anniversaire",emoji:"🎂",theme:"birthday",special:true}
 ];
 
 // ===================== STATE =====================
+
+// ===================== BONUS SYSTEM =====================
+const BONUSES = [
+  {
+    id: 'instant_cook',
+    name: 'Cuisine Express',
+    icon: '⚡',
+    desc: 'Toutes les préparations sont instantanées (1 sec)',
+    baseCost: 800,
+    maxLevel: 1,
+    unlockAfterLevel: 5,
+    effect: 'instant_cook'
+  },
+  {
+    id: 'extra_table',
+    name: 'Table Supplémentaire',
+    icon: '🪑',
+    desc: 'Ajoute 1 emplacement de table en plus par niveau',
+    baseCost: 600,
+    maxLevel: 3,
+    unlockAfterLevel: 5,
+    effect: 'extra_table'
+  },
+  {
+    id: 'patience_boost',
+    name: 'Clients Patients',
+    icon: '😊',
+    desc: 'Les clients patientent 50% plus longtemps avant de partir',
+    baseCost: 500,
+    maxLevel: 2,
+    unlockAfterLevel: 10,
+    effect: 'patience_boost'
+  },
+  {
+    id: 'score_multiplier',
+    name: 'Bonus de Vitesse x2',
+    icon: '💎',
+    desc: 'Le bonus de vitesse de service est doublé',
+    baseCost: 1000,
+    maxLevel: 1,
+    unlockAfterLevel: 10,
+    effect: 'score_multiplier'
+  },
+  {
+    id: 'multi_cook',
+    name: 'Double Cuisine',
+    icon: '🍳',
+    desc: 'Permet de cuisiner 2 plats du même type en parallèle',
+    baseCost: 900,
+    maxLevel: 1,
+    unlockAfterLevel: 15,
+    effect: 'multi_cook'
+  },
+  {
+    id: 'auto_serve',
+    name: 'Service Automatique',
+    icon: '🤖',
+    desc: 'Les plats prêts sont servis automatiquement aux clients qui attendent',
+    baseCost: 1200,
+    maxLevel: 1,
+    unlockAfterLevel: 15,
+    effect: 'auto_serve'
+  }
+];
+
+// Player's purchased bonuses and total coins
+let playerBonuses = {}; // { bonus_id: level_purchased }
+let totalCoinsEarned = 0;
+let totalCoinsSpent = 0;
+
+function getAvailableCoins() { return totalCoinsEarned - totalCoinsSpent; }
+
+function getBonusLevel(id) { return playerBonuses[id] || 0; }
+
+function hasBonus(id) { return getBonusLevel(id) > 0; }
+
+function getBonusCost(bonus) {
+  const level = getBonusLevel(bonus.id);
+  return Math.round(bonus.baseCost * Math.pow(1.5, level));
+}
+
+// Apply bonuses to game state
+function applyBonusesToLevel(lvl) {
+  let tables = lvl.tables;
+  // extra_table: +1 table per level purchased
+  if (hasBonus('extra_table')) {
+    tables = Math.min(tables + getBonusLevel('extra_table'), 7);
+  }
+  return { ...lvl, tables };
+}
+
+function getCookTime(item) {
+  if (hasBonus('instant_cook')) return 1;
+  return item.cookTime;
+}
+
+function getPatienceMax() {
+  let base = 30;
+  if (hasBonus('patience_boost')) base = base * (1 + 0.5 * getBonusLevel('patience_boost'));
+  return Math.round(base);
+}
+
+function getScoreMultiplier() {
+  return hasBonus('score_multiplier') ? 2 : 1;
+}
+
+// Show shop after every 5 levels if player earned enough
+function shouldShowShop(levelId) {
+  return levelId > 0 && levelId % 5 === 0;
+}
+
+function openShop() {
+  showScreen('shopScreen');
+  renderShop();
+}
+
+function closeShop() {
+  // Save bonus state
+  saveProgress();
+  // Go to next level or level select
+  const next = gs ? gs.level.id + 1 : 1;
+  if (next === 21) { startCakeLevel(); return; }
+  if (next <= 20) startLevel(next);
+  else showLevelSelect();
+}
+
+function renderShop() {
+  document.getElementById('shopCoins').textContent = getAvailableCoins().toLocaleString();
+  const container = document.getElementById('shopItems');
+  container.innerHTML = '';
+
+  const currentLevelId = gs ? gs.level.id : 0;
+
+  BONUSES.forEach(bonus => {
+    const lvl = getBonusLevel(bonus.id);
+    const isMaxed = lvl >= bonus.maxLevel;
+    const cost = getBonusCost(bonus);
+    const coins = getAvailableCoins();
+    const canAfford = coins >= cost;
+    const isUnlocked = currentLevelId >= bonus.unlockAfterLevel;
+
+    const card = document.createElement('div');
+    card.className = 'shop-item' + (isMaxed ? ' owned' : canAfford && isUnlocked ? ' affordable' : ' too-expensive');
+
+    let btnHtml = '';
+    if (isMaxed) {
+      btnHtml = `<button class="shop-btn shop-btn-owned" disabled>✓ Acheté</button>`;
+    } else if (!isUnlocked) {
+      btnHtml = `<button class="shop-btn shop-btn-no" disabled>🔒 Niv.${bonus.unlockAfterLevel}</button>`;
+    } else if (canAfford) {
+      btnHtml = `<button class="shop-btn shop-btn-buy" onclick="buyBonus('${bonus.id}')">💰 ${cost.toLocaleString()}</button>`;
+    } else {
+      btnHtml = `<button class="shop-btn shop-btn-no" disabled>💰 ${cost.toLocaleString()}</button>`;
+    }
+
+    const levelLabel = bonus.maxLevel > 1 ? ` <span class="shop-badge">Niv. ${lvl}/${bonus.maxLevel}</span>` : '';
+
+    card.innerHTML = `
+      <span class="shop-icon">${bonus.icon}</span>
+      <div class="shop-info">
+        <div class="shop-name">${bonus.name}${isMaxed ? ' ✓' : ''}</div>
+        <div class="shop-desc">${bonus.desc}</div>
+        ${levelLabel}
+      </div>
+      ${btnHtml}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function buyBonus(id) {
+  const bonus = BONUSES.find(b => b.id === id);
+  if (!bonus) return;
+  const cost = getBonusCost(bonus);
+  if (getAvailableCoins() < cost) { showNotif('❌ Pas assez de pièces !'); return; }
+  totalCoinsSpent += cost;
+  playerBonuses[id] = (playerBonuses[id] || 0) + 1;
+  showNotif(`✅ ${bonus.name} acheté !`);
+  renderShop();
+  saveProgress();
+}
+
+// Update HUD bonus pills
+function updateBonusHUD() {
+  const bar = document.getElementById('bonusBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  BONUSES.forEach(b => {
+    if (hasBonus(b.id)) {
+      const pill = document.createElement('span');
+      pill.className = 'bonus-pill';
+      pill.textContent = b.icon;
+      pill.title = b.name;
+      bar.appendChild(pill);
+    }
+  });
+}
+
+// Auto-serve bonus logic (called in tickGame)
+function runAutoServe() {
+  if (!hasBonus('auto_serve') || !gs) return;
+  gs.tables.forEach(t => {
+    if (t.state !== 'waiting-food') return;
+    const item = t.customer && t.customer.item;
+    if (!item) return;
+    const cookItem = gs.cooking[item.id];
+    if (cookItem && cookItem.ready) {
+      const pct = t.patience / t.patienceMax;
+      const mult = getScoreMultiplier();
+      const bonus = Math.round(item.price * (1 + pct * 0.5) * mult);
+      addScore(bonus, document.getElementById(`table_${t.id}`));
+      gs.cooking[item.id] = null;
+      updateMenuItemUI(item.id, null);
+      t.state = 'eating'; t.eatTimer = 8;
+      renderTable(t.id);
+      showNotif(`🤖 Service auto ! ${item.emoji} +${bonus}💰`);
+    }
+  });
+}
+
 let gameState = {
   currentLevel: 1,
   scores: new Array(22).fill(0),
@@ -775,7 +1058,7 @@ let sbRowId    = localStorage.getItem('estherResto_rowId') || null;
 
 // ===================== SAVE / LOAD =====================
 async function saveProgress() {
-  try { localStorage.setItem('estherResto_save', JSON.stringify({ scores: gameState.scores, stars: gameState.stars, unlocked: gameState.unlocked })); } catch(e) {}
+  try { localStorage.setItem('estherResto_save', JSON.stringify({ scores: gameState.scores, stars: gameState.stars, unlocked: gameState.unlocked, bonuses: playerBonuses, coinsEarned: totalCoinsEarned, coinsSpent: totalCoinsSpent })); } catch(e) {}
   if (!playerName) return;
   const payload = { player_name: playerName, unlocked: gameState.unlocked, stars: gameState.stars, best_scores: gameState.scores, updated_at: new Date().toISOString() };
   try {
@@ -818,9 +1101,12 @@ function loadProgressLocal() {
     const raw = localStorage.getItem('estherResto_save');
     if (!raw) return;
     const data = JSON.parse(raw);
-    if (data.scores)   gameState.scores   = data.scores;
-    if (data.stars)    gameState.stars    = data.stars;
-    if (data.unlocked) gameState.unlocked = data.unlocked;
+    if (data.scores)      gameState.scores   = data.scores;
+    if (data.stars)       gameState.stars    = data.stars;
+    if (data.unlocked)    gameState.unlocked = data.unlocked;
+    if (data.bonuses)     playerBonuses      = data.bonuses;
+    if (data.coinsEarned) totalCoinsEarned   = data.coinsEarned;
+    if (data.coinsSpent)  totalCoinsSpent    = data.coinsSpent;
   } catch(e) {}
 }
 loadProgressLocal();
@@ -941,7 +1227,9 @@ function startLevel(lvlId) {
   document.getElementById('pauseOverlay').style.display = 'none';
   document.getElementById('pauseBtn').textContent = '⏸️';
   stopGame();
-  const lvl = LEVELS[lvlId-1];
+  const rawLvl = LEVELS[lvlId-1];
+  const lvl = applyBonusesToLevel(rawLvl);
+  updateBonusHUD();
   gs = {
     level: lvl,
     score: 0,
@@ -961,7 +1249,16 @@ function startLevel(lvlId) {
   updateTimerDisplay();
   spawnCustomers();
   gameTimer = setInterval(tickGame, 1000);
-  spawnTimer = setInterval(() => trySpawnCustomer(), 4000);
+  // Spawn interval: faster in middle of game, slower at start/end
+  spawnTimer = setInterval(() => {
+    if (!gs || !gs.started) return;
+    const progress = 1 - (gs.timeLeft / gs.level.time);
+    // Always try to fill empty tables
+    const emptyCount = gs.tables.filter(t => t.state === 'empty').length;
+    if (emptyCount >= 1) trySpawnCustomer();
+    // Extra spawn burst in first half of game
+    if (progress < 0.5 && emptyCount >= 2) trySpawnCustomer();
+  }, 3000);
 }
 
 function buildGameUI(lvl) {
@@ -1028,17 +1325,25 @@ function buildGameUI(lvl) {
 }
 
 function spawnCustomers() {
+  // At start, fill ALL tables immediately to give action right away
   const tables = gs.tables.filter(t => t.state === 'empty');
-  const toFill = Math.min(tables.length, Math.floor(gs.tables.length * 0.5) + 1);
-  for (let i = 0; i < toFill; i++) {
-    if (tables[i]) spawnAtTable(tables[i].id);
-  }
+  tables.forEach(t => {
+    const inRestaurant = gs.tables.filter(t2 => t2.state !== 'empty').length;
+    if (gs.customersServed + inRestaurant < gs.customersTotal) {
+      spawnAtTable(t.id);
+    }
+  });
 }
 
 function trySpawnCustomer() {
   if (!gs || !gs.started) return;
   const empty = gs.tables.filter(t => t.state === 'empty');
-  if (empty.length > 0 && gs.customersServed < gs.customersTotal - gs.tables.filter(t=>t.state!=='empty').length) {
+  if (empty.length === 0) return;
+  // Count total customers currently in restaurant or already served
+  const inRestaurant = gs.tables.filter(t => t.state !== 'empty').length;
+  const totalDone = gs.customersServed + inRestaurant;
+  // Keep spawning as long as we haven't reached the total quota
+  if (totalDone < gs.customersTotal) {
     const t = empty[Math.floor(Math.random() * empty.length)];
     spawnAtTable(t.id);
   }
@@ -1053,8 +1358,9 @@ function spawnAtTable(tableId) {
   const emoji = CUSTOMERS_EMOJIS[Math.floor(Math.random() * CUSTOMERS_EMOJIS.length)];
   t.state = 'needs-order';
   t.customer = {name, emoji, item};
-  t.patience = 30;
-  t.patienceMax = 30;
+  const pm = getPatienceMax();
+  t.patience = pm;
+  t.patienceMax = pm;
   renderTable(tableId);
 }
 
@@ -1133,7 +1439,7 @@ function serveCurrentTable() {
   const cookItem = gs.cooking[item.id];
   if (!cookItem || !cookItem.ready) { showNotif(`⚠️ ${item.name} pas encore prêt !`); return; }
   const pct = t.patience / t.patienceMax;
-  const bonus = Math.round(item.price * (1 + pct * 0.5));
+  const bonus = Math.round(item.price * (1 + pct * 0.5) * getScoreMultiplier());
   addScore(bonus, document.getElementById(`table_${selectedTableId}`));
   gs.cooking[item.id] = null;
   updateMenuItemUI(item.id, null);
@@ -1152,7 +1458,7 @@ function cookDish(dishId) {
   gs.cooking[dishId] = {item, progress:0, ready:false};
   updateMenuItemUI(dishId, gs.cooking[dishId]);
   if (cookTimers[dishId]) clearInterval(cookTimers[dishId]);
-  const total = item.cookTime;
+  const total = getCookTime(item);
   let elapsed = 0;
   cookTimers[dishId] = setInterval(() => {
     if (!gs || !gs.started) { clearInterval(cookTimers[dishId]); return; }
@@ -1182,6 +1488,7 @@ function updateMenuItemUI(dishId, cook) {
 
 function tickGame() {
   if (!gs || !gs.started) return;
+  runAutoServe();
   gs.timeLeft--;
   updateTimerDisplay();
   gs.tables.forEach((t,i) => {
@@ -1239,7 +1546,14 @@ function endGame() {
   const prev = gameState.stars[gs.level.id] || 0;
   if (stars > prev) { gameState.stars[gs.level.id] = stars; gameState.scores[gs.level.id] = gs.score; }
   if (stars > 0 && gs.level.id >= gameState.unlocked) gameState.unlocked = Math.min(21, gs.level.id + 1);
+  // Add earned score to coins pool
+  if (gs.score > 0) {
+    const coinsEarned = Math.round(gs.score * 0.3); // 30% of score becomes coins
+    totalCoinsEarned += coinsEarned;
+    showNotif(`+${coinsEarned.toLocaleString()} 💰 pièces gagnées !`);
+  }
   saveProgress();
+  // Always show level complete first
   showLevelComplete(stars);
 }
 
@@ -1250,11 +1564,22 @@ function showLevelComplete(stars) {
   document.getElementById('completeStars').textContent = stars > 0 ? '⭐'.repeat(stars) + '☆'.repeat(3-stars) : '💔';
   document.getElementById('completeScore').textContent = `Score: ${gs.score} / Objectif: ${gs.level.goal}`;
   document.getElementById('completeTip').textContent = tips[stars];
+  const coinsDiv = document.getElementById('completeCoins');
+  if (coinsDiv) {
+    const gained = Math.round(gs.score * 0.3);
+    coinsDiv.textContent = stars > 0 ? `💰 +${gained.toLocaleString()} pièces gagnées !` : '';
+    coinsDiv.style.display = stars > 0 ? 'block' : 'none';
+  }
   showScreen('levelComplete');
 }
 
 function nextLevel() {
   const next = gs ? gs.level.id + 1 : 1;
+  // Open shop every 5 levels (after lvl 5, 10, 15, 20)
+  if (gs && shouldShowShop(gs.level.id)) {
+    openShop();
+    return;
+  }
   if (next === 21) { startCakeLevel(); return; }
   if (next <= 21) startLevel(next);
   else showLevelSelect();
@@ -1661,6 +1986,9 @@ window.pauseAndGoHome = pauseAndGoHome;
 window.onClickPlay = onClickPlay;
 window.submitName = submitName;
 window.showLeaderboard = showLeaderboard;
+window.closeShop = closeShop;
+window.buyBonus = buyBonus;
+window.openShop = openShop;
 </script>
 </body>
 </html>
