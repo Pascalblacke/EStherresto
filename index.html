@@ -533,7 +533,22 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
   <div class="title-logo">Esther Resto</div>
   <div class="title-sub">Le Jeu de Cuisine Ultime</div>
   <div class="birthday-badge">🎂 Édition Spéciale 21 Ans 🎂</div>
-  <button class="btn btn-play" style="z-index:10;position:relative;" onclick="(function(){if(!localStorage.getItem('estherResto_name')){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('nameScreen').classList.add('active');}else{buildLevelGrid();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('levelScreen').classList.add('active');}})()">JOUER !</button>
+  <button class="btn btn-play" style="z-index:10;position:relative;" onclick="(function(){
+  var name = localStorage.getItem('estherResto_name');
+  if (!name) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('nameScreen').classList.add('active');
+  } else if (!progressionReady) {
+    showNotif('⏳ Chargement en cours, patiente...');
+    var check = setInterval(function(){
+      if(progressionReady){ clearInterval(check); buildLevelGrid(); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('levelScreen').classList.add('active'); }
+    }, 200);
+  } else {
+    buildLevelGrid();
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('levelScreen').classList.add('active');
+  }
+})()">JOUER !</button>
   <button class="btn btn-sm" style="margin-top:10px;z-index:1;background:rgba(255,255,255,0.25);color:white;border:2px solid rgba(255,255,255,0.5);" onclick="showLeaderboard()">🏆 Classement</button>
   <div style="margin-top:15px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;z-index:1;text-align:center;">21 niveaux • Gestion de restaurant • Recettes spéciales</div>
   <div id="saveIndicator" style="margin-top:8px;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;z-index:1;text-align:center;"></div>
@@ -1577,12 +1592,21 @@ function updateSaveIndicator() {
   }
 }
 
+// Global flag : true quand la progression cloud est chargée
+let progressionReady = !playerName; // si pas de nom = pas besoin de charger
+
 window.onload = () => {
   buildStarsBg('titleStars');
   updateSaveIndicator();
-  // Si nom déjà connu, charger depuis Supabase silencieusement
   if (playerName) {
-    loadFromSupabase().then(() => updateSaveIndicator());
+    // Affiche un petit indicateur de chargement
+    const ind = document.getElementById('saveIndicator');
+    if (ind) ind.textContent = '⏳ Chargement de ta progression...';
+    loadFromSupabase().then(found => {
+      progressionReady = true;
+      updateSaveIndicator();
+      if (found) showNotif('✅ Progression chargée !');
+    }).catch(() => { progressionReady = true; });
   }
 };
 
