@@ -35,11 +35,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
 .title-sub{font-size:22px;color:white;font-weight:800;text-shadow:2px 2px rgba(0,0,0,0.2);margin:12px 0 6px;z-index:1;}
 .birthday-badge{background:var(--gold);color:var(--dark);font-weight:900;font-size:19px;padding:10px 28px;border-radius:50px;margin:10px 0 35px;z-index:1;box-shadow:0 4px 20px rgba(255,215,0,0.6);animation:badgeShine 2s infinite;}
 @keyframes badgeShine{0%,100%{box-shadow:0 4px 20px rgba(255,215,0,0.5);}50%{box-shadow:0 4px 35px rgba(255,215,0,1);}}
-.floating-item{position:absolute;font-size:40px;animation:floatUp linear infinite;opacity:0.6;z-index:0;}
+.floating-item{position:absolute;font-size:40px;animation:floatUp linear infinite;opacity:0.6;z-index:0;pointer-events:none;}
 @keyframes floatUp{0%{transform:translateY(110vh) rotate(0deg);opacity:0.6;}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
 
 /* BUTTONS */
-.btn{font-family:'Nunito',sans-serif;font-weight:900;border:none;border-radius:50px;cursor:pointer;transition:all 0.15s;box-shadow:0 6px 0 rgba(0,0,0,0.2);}
+.btn{font-family:'Nunito',sans-serif;font-weight:900;border:none;border-radius:50px;cursor:pointer;transition:all 0.15s;box-shadow:0 6px 0 rgba(0,0,0,0.2);position:relative;z-index:10;}
 .btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,0.2);}
 .btn-play{background:linear-gradient(135deg,#FF6B6B,#FF8C42);color:white;font-size:28px;padding:20px 70px;}
 .btn-play:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 0 rgba(0,0,0,0.2);}
@@ -533,7 +533,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:
   <div class="title-logo">Esther Resto</div>
   <div class="title-sub">Le Jeu de Cuisine Ultime</div>
   <div class="birthday-badge">🎂 Édition Spéciale 21 Ans 🎂</div>
-  <button class="btn btn-play" onclick="onClickPlay()">JOUER !</button>
+  <button class="btn btn-play" style="z-index:10;position:relative;" onclick="(function(){if(!localStorage.getItem('estherResto_name')){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('nameScreen').classList.add('active');}else{buildLevelGrid();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('levelScreen').classList.add('active');}})()">JOUER !</button>
   <button class="btn btn-sm" style="margin-top:10px;z-index:1;background:rgba(255,255,255,0.25);color:white;border:2px solid rgba(255,255,255,0.5);" onclick="showLeaderboard()">🏆 Classement</button>
   <div style="margin-top:15px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;z-index:1;text-align:center;">21 niveaux • Gestion de restaurant • Recettes spéciales</div>
   <div id="saveIndicator" style="margin-top:8px;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;z-index:1;text-align:center;"></div>
