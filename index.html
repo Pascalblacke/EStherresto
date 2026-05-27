@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🍽️ Esther Resto</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap');
+:root {
+  --pink:#FF6B9D; --rose:#FF8FB1; --gold:#FFD700; --mint:#4ECDC4;
+  --coral:#FF6B6B; --purple:#9B59B6; --bg:#FFF0F5; --dark:#2D1B33;
+  --green:#2ECC71; --orange:#FF8C42; --blue:#3498DB;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);overflow:hidden;width:100vw;height:100vh;user-select:none;-webkit-tap-highlight-color:transparent;}
+.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;align-items:center;justify-content:center;}
+.screen.active{display:flex;}
+
+/* TITLE */
+#titleScreen{
+  background:linear-gradient(135deg,#FF6B9D 0%,#FF8FB1 40%,#FFD1DC 100%);
+  overflow:hidden;
+}
+#titleScreen::before{
+  content:'';position:absolute;width:700px;height:700px;
+  background:radial-gradient(circle,rgba(255,255,255,0.25) 0%,transparent 70%);
+  top:-150px;left:50%;transform:translateX(-50%);
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.15);}}
+.title-logo{font-family:'Pacifico',cursive;font-size:80px;color:white;text-shadow:5px 5px 0 #c0396a,10px 10px 20px rgba(0,0,0,0.15);z-index:1;animation:titleBounce 2s ease-in-out infinite;}
+@keyframes titleBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.title-emoji{font-size:60px;z-index:1;animation:spin 4s linear infinite;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.title-sub{font-size:22px;color:white;font-weight:800;text-shadow:2px 2px rgba(0,0,0,0.2);margin:12px 0 6px;z-index:1;}
+.birthday-badge{background:var(--gold);color:var(--dark);font-weight:900;font-size:19px;padding:10px 28px;border-radius:50px;margin:10px 0 35px;z-index:1;box-shadow:0 4px 20px rgba(255,215,0,0.6);animation:badgeShine 2s infinite;}
+@keyframes badgeShine{0%,100%{box-shadow:0 4px 20px rgba(255,215,0,0.5);}50%{box-shadow:0 4px 35px rgba(255,215,0,1);}}
+.floating-item{position:absolute;font-size:40px;animation:floatUp linear infinite;opacity:0.6;z-index:0;}
+@keyframes floatUp{0%{transform:translateY(110vh) rotate(0deg);opacity:0.6;}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
+
+/* BUTTONS */
+.btn{font-family:'Nunito',sans-serif;font-weight:900;border:none;border-radius:50px;cursor:pointer;transition:all 0.15s;box-shadow:0 6px 0 rgba(0,0,0,0.2);}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,0.2);}
+.btn-play{background:linear-gradient(135deg,#FF6B6B,#FF8C42);color:white;font-size:28px;padding:20px 70px;}
+.btn-play:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 0 rgba(0,0,0,0.2);}
+.btn-sm{background:white;color:var(--dark);font-size:16px;padding:12px 30px;box-shadow:0 4px 0 rgba(0,0,0,0.15);}
+.btn-pink{background:linear-gradient(135deg,var(--pink),var(--purple));color:white;font-size:20px;padding:15px 45px;}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--mint));color:white;font-size:20px;padding:15px 45px;}
+
+/* LEVEL SELECT */
+#levelScreen{background:linear-gradient(160deg,#FFF0F5,#FFE4F0);overflow-y:auto;}
+.level-title{font-family:'Pacifico',cursive;font-size:48px;color:var(--pink);text-shadow:3px 3px 0 var(--rose);margin-bottom:30px;}
+.levels-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;max-width:900px;padding:10px;}
+.level-btn{
+  width:100px;height:100px;border-radius:20px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:all 0.15s;box-shadow:0 5px 0 rgba(0,0,0,0.15);position:relative;
+}
+.level-btn:active{transform:translateY(3px);}
+.level-btn.locked{background:#ddd;color:#999;cursor:not-allowed;}
+.level-btn.unlocked{background:linear-gradient(135deg,var(--pink),var(--rose));color:white;}
+.level-btn.completed{background:linear-gradient(135deg,var(--gold),#FFA500);color:white;}
+.level-btn.special{background:linear-gradient(135deg,var(--purple),#E91E99);color:white;animation:specialPulse 2s infinite;}
+@keyframes specialPulse{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,0.15),0 0 0 0 rgba(155,89,182,0.4);}50%{box-shadow:0 5px 0 rgba(0,0,0,0.15),0 0 20px 8px rgba(155,89,182,0.4);}}
+.level-btn .stars{font-size:14px;margin-top:2px;}
+.level-btn .lvl-emoji{font-size:24px;}
+
+/* HUD */
+#hud{
+  position:absolute;top:0;left:0;right:0;height:70px;
+  background:linear-gradient(90deg,var(--pink),var(--purple));
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:100;
+}
+.hud-info{color:white;font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;}
+.hud-score{font-size:28px;font-family:'Pacifico',cursive;}
+#timerBar{position:absolute;bottom:0;left:0;height:6px;background:var(--gold);transition:width 1s linear;}
+
+/* GAME SCREEN */
+#gameScreen{background:#FFF8FC;}
+#gameArea{
+  position:absolute;top:70px;left:0;right:0;bottom:0;
+  display:flex;gap:0;
+}
+
+/* RESTAURANT AREA */
+#restaurantArea{
+  flex:1;position:relative;
+  background:linear-gradient(180deg,#FFF8FC 0%,#FFE8F4 100%);
+  overflow:hidden;
+}
+.table-zone{
+  position:absolute;background:rgba(255,107,157,0.08);
+  border:3px dashed rgba(255,107,157,0.3);border-radius:16px;
+  cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+}
+.table-zone:hover,.table-zone:active{background:rgba(255,107,157,0.15);border-color:var(--pink);}
+.table-zone.has-customer{background:rgba(78,205,196,0.1);border-color:var(--mint);}
+.table-zone.needs-order{animation:tablePulse 0.8s ease-in-out infinite;}
+@keyframes tablePulse{0%,100%{background:rgba(255,107,157,0.08);}50%{background:rgba(255,107,157,0.25);}}
+.table-zone.waiting-food{background:rgba(255,215,0,0.1);border-color:var(--gold);}
+.table-zone.eating{background:rgba(46,204,113,0.08);border-color:var(--green);}
+
+.customer{font-size:36px;text-align:center;}
+.customer-name{font-size:11px;font-weight:800;color:var(--dark);}
+.speech-bubble{
+  position:absolute;background:white;border-radius:12px;padding:5px 10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.15);font-size:20px;
+  top:-45px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  border:2px solid rgba(255,107,157,0.3);z-index:10;
+}
+.speech-bubble::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid white;}
+.patience-bar{width:70px;height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-top:3px;}
+.patience-fill{height:100%;border-radius:3px;transition:width 0.5s;background:var(--green);}
+
+/* KITCHEN */
+#kitchenArea{
+  width:320px;background:linear-gradient(180deg,#2D1B33,#3D2B43);
+  display:flex;flex-direction:column;padding:15px;gap:10px;overflow-y:auto;flex-shrink:0;
+}
+.kitchen-title{font-family:'Pacifico',cursive;font-size:20px;color:var(--gold);text-align:center;margin-bottom:5px;flex-shrink:0;}
+.menu-item{
+  background:rgba(255,255,255,0.08);border-radius:14px;padding:12px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all 0.15s;border:2px solid transparent;
+}
+.menu-item:hover,.menu-item:active{background:rgba(255,107,157,0.2);border-color:var(--pink);}
+.menu-item.cooking{background:rgba(255,215,0,0.15);border-color:var(--gold);animation:cookPulse 1s infinite;}
+@keyframes cookPulse{0%,100%{opacity:1;}50%{opacity:0.7;}}
+.menu-item.ready{background:rgba(46,204,113,0.2);border-color:var(--green);}
+.dish-emoji{font-size:36px;flex-shrink:0;}
+.dish-info{flex:1;min-width:0;}
+.dish-name{color:white;font-weight:800;font-size:14px;}
+.dish-time{color:rgba(255,255,255,0.6);font-size:12px;}
+.dish-price{color:var(--gold);font-weight:900;font-size:15px;flex-shrink:0;}
+.cook-progress{height:5px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:5px;overflow:hidden;}
+.cook-fill{height:100%;background:var(--gold);border-radius:3px;transition:width 0.3s;}
+.cook-status{font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;}
+
+/* ORDER PANEL */
+#orderPanel{
+  position:absolute;bottom:15px;left:50%;transform:translateX(-50%);
+  background:white;border-radius:20px;padding:15px 20px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:300px;max-width:500px;
+  display:none;z-index:50;border:3px solid var(--pink);
+}
+#orderPanel h3{font-family:'Pacifico',cursive;color:var(--pink);font-size:20px;margin-bottom:10px;text-align:center;}
+.order-items{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.order-item{background:var(--bg);border-radius:12px;padding:8px 14px;font-size:15px;font-weight:700;color:var(--dark);border:2px solid var(--rose);}
+.order-item.served{background:rgba(46,204,113,0.15);border-color:var(--green);color:var(--green);}
+.order-btn-row{display:flex;gap:10px;margin-top:12px;justify-content:center;}
+
+/* FLOATING SCORE */
+.float-score{
+  position:absolute;font-size:22px;font-weight:900;color:var(--gold);
+  pointer-events:none;z-index:200;animation:floatScore 1.5s ease-out forwards;
+  text-shadow:1px 1px 3px rgba(0,0,0,0.3);
+}
+@keyframes floatScore{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-80px);}}
+
+/* LEVEL COMPLETE */
+#levelComplete{
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);
+  z-index:300;
+}
+.complete-card{
+  background:white;border-radius:30px;padding:40px;text-align:center;
+  max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  animation:cardPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+@keyframes cardPop{0%{transform:scale(0);}100%{transform:scale(1);}}
+.complete-title{font-family:'Pacifico',cursive;font-size:42px;color:var(--gold);}
+.complete-stars{font-size:50px;margin:15px 0;}
+.complete-score{font-size:28px;font-weight:900;color:var(--dark);margin:10px 0;}
+.complete-tip{font-size:16px;color:#888;margin-bottom:20px;}
+
+/* ======================== LEVEL 21 - BIRTHDAY CAKE ======================== */
+#cakeScreen{
+  background:linear-gradient(135deg,#1a0a2e 0%,#2d1b33 40%,#0d0d2b 100%);
+  flex-direction:column;overflow:hidden;position:relative;
+}
+.cake-stars-bg{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;}
+.star-dot{position:absolute;background:white;border-radius:50%;animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0.2;}50%{opacity:1;}}
+
+.cake-hud{
+  width:100%;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);
+  padding:15px 30px;display:flex;align-items:center;justify-content:space-between;z-index:10;flex-shrink:0;
+}
+.cake-hud-title{font-family:'Pacifico',cursive;font-size:28px;color:var(--gold);}
+.cake-timer-display{font-size:22px;font-weight:900;color:white;background:rgba(255,107,157,0.3);padding:8px 20px;border-radius:30px;}
+
+.cake-main{display:flex;gap:30px;padding:20px 40px;flex:1;align-items:flex-start;z-index:10;overflow-y:auto;}
+
+/* RECIPE CARD */
+.recipe-card{
+  background:rgba(255,255,255,0.07);backdrop-filter:blur(10px);
+  border-radius:24px;padding:25px;min-width:260px;border:2px solid rgba(255,215,0,0.3);flex-shrink:0;
+}
+.recipe-title{font-family:'Pacifico',cursive;font-size:22px;color:var(--gold);margin-bottom:15px;text-align:center;}
+.recipe-step{
+  display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;
+  margin-bottom:8px;background:rgba(255,255,255,0.04);border:2px solid transparent;
+  transition:all 0.3s;
+}
+.recipe-step.pending{opacity:0.5;}
+.recipe-step.current{background:rgba(255,107,157,0.15);border-color:var(--pink);opacity:1;animation:stepGlow 1.5s infinite;}
+@keyframes stepGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,107,157,0.3);}50%{box-shadow:0 0 12px 4px rgba(255,107,157,0.3);}}
+.recipe-step.done{background:rgba(46,204,113,0.15);border-color:var(--green);opacity:1;}
+.step-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);color:white;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.recipe-step.done .step-num{background:var(--green);color:white;}
+.recipe-step.current .step-num{background:var(--pink);}
+.step-text{color:rgba(255,255,255,0.85);font-size:14px;font-weight:700;}
+.step-emoji{font-size:24px;flex-shrink:0;}
+
+/* CAKE WORKBENCH */
+.cake-workbench{flex:1;display:flex;flex-direction:column;align-items:center;gap:20px;}
+.workbench-table{
+  background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);
+  border-radius:30px;padding:25px;width:100%;display:flex;flex-wrap:wrap;gap:15px;
+  justify-content:center;border:2px solid rgba(255,255,255,0.1);min-height:200px;align-items:center;
+}
+.ingredient-btn{
+  background:rgba(255,255,255,0.08);border:3px solid rgba(255,255,255,0.15);
+  border-radius:20px;padding:12px 20px;cursor:pointer;text-align:center;
+  transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:5px;
+  min-width:100px;
+}
+.ingredient-btn:hover,.ingredient-btn:active{background:rgba(255,107,157,0.2);border-color:var(--pink);transform:scale(1.05);}
+.ingredient-btn.used{background:rgba(46,204,113,0.15);border-color:var(--green);opacity:0.7;cursor:default;}
+.ingredient-btn.needed{animation:ingredientPulse 1s infinite;border-color:var(--gold);}
+@keyframes ingredientPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);box-shadow:0 0 15px rgba(255,215,0,0.5);}}
+.ingredient-emoji{font-size:40px;}
+.ingredient-name{color:white;font-size:12px;font-weight:700;}
+
+/* CAKE PREVIEW */
+.cake-preview-area{
+  background:rgba(255,255,255,0.05);border-radius:24px;padding:20px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;min-width:200px;
+  border:2px solid rgba(255,255,255,0.1);flex-shrink:0;
+}
+.cake-build{font-size:70px;text-align:center;min-height:80px;line-height:1.2;}
+.cake-preview-label{color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;}
+
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:15px;margin-top:10px;}
+.cake-action-btn{
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;
+  padding:14px 35px;border-radius:50px;border:none;cursor:pointer;
+  transition:all 0.15s;box-shadow:0 5px 0 rgba(0,0,0,0.3);
+}
+.cake-action-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.3);}
+.btn-send{background:linear-gradient(135deg,#FF6B9D,var(--purple));color:white;display:none;}
+.btn-reset-cake{background:rgba(255,255,255,0.1);color:white;}
+
+/* ======================== FIREWORKS + BIRTHDAY ======================== */
+#birthdayScreen{
+  background:linear-gradient(135deg,#0d0d2b 0%,#1a0520 50%,#0a1a0d 100%);
+  z-index:500;overflow:hidden;
+}
+#fwCanvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.birthday-content{
+  z-index:10;text-align:center;display:flex;flex-direction:column;align-items:center;
+  animation:birthdayReveal 1s 2s both;overflow-y:auto;padding:10px 20px;
+}
+@keyframes birthdayReveal{0%{opacity:0;transform:scale(0.5);}100%{opacity:1;transform:scale(1);}}
+.birthday-title{
+  font-family:'Pacifico',cursive;font-size:90px;
+  background:linear-gradient(135deg,var(--gold),var(--pink),#fff,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:300%;animation:birthdayGradient 3s linear infinite;
+  text-shadow:none;filter:drop-shadow(0 0 30px rgba(255,215,0,0.8));
+  line-height:1.1;
+}
+@keyframes birthdayGradient{0%{background-position:0%;}100%{background-position:300%;}}
+.birthday-num{font-family:'Pacifico',cursive;font-size:130px;color:var(--gold);filter:drop-shadow(0 0 40px rgba(255,215,0,1));animation:numPulse 1.5s ease-in-out infinite;}
+@keyframes numPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.birthday-message{
+  font-size:30px;font-weight:900;color:white;margin:15px 0 10px;
+  text-shadow:0 0 30px rgba(255,107,157,0.9),0 0 60px rgba(255,107,157,0.4);
+  animation:messageFade 1.2s 2.8s both;
+  letter-spacing:1px;
+}
+@keyframes messageFade{0%{opacity:0;transform:translateY(30px) scale(0.9);}100%{opacity:1;transform:translateY(0) scale(1);}}
+.birthday-sub{
+  font-size:17px;color:rgba(255,255,255,0.88);margin-bottom:25px;
+  animation:messageFade 1.2s 3.4s both;
+  line-height:1.8;text-align:center;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px;padding:20px 30px;
+  backdrop-filter:blur(6px);
+  box-shadow:0 0 40px rgba(255,107,157,0.15);
+  max-width:620px;
+}
+.birthday-sub .line{display:block;animation:lineReveal 0.8s both;}
+.birthday-sub .line:nth-child(1){animation-delay:3.8s;}
+.birthday-sub .line:nth-child(2){animation-delay:4.4s;}
+.birthday-sub .line:nth-child(3){animation-delay:5.0s;}
+.birthday-sub .line:nth-child(4){animation-delay:5.6s;}
+.birthday-sub .line:nth-child(5){animation-delay:6.2s;}
+@keyframes lineReveal{0%{opacity:0;transform:translateX(-15px);}100%{opacity:1;transform:translateX(0);}}
+.cake-big{font-size:110px;animation:cakeBounce 2s 2s ease-in-out infinite both;filter:drop-shadow(0 0 30px rgba(255,215,0,0.8));}
+@keyframes cakeBounce{0%,100%{transform:translateY(0) rotate(-5deg) scale(1);}50%{transform:translateY(-25px) rotate(6deg) scale(1.08);}}
+.confetti-emoji{position:absolute;font-size:30px;animation:confettiFall linear infinite;pointer-events:none;}
+@keyframes confettiFall{0%{transform:translateY(-50px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+.heart-float{position:absolute;pointer-events:none;animation:heartRise ease-in both;}
+@keyframes heartRise{0%{opacity:1;transform:translateY(0) scale(0.5);}60%{opacity:1;}100%{opacity:0;transform:translateY(-200px) scale(1.4);}}
+.glow-ring{
+  position:absolute;border-radius:50%;border:3px solid rgba(255,107,157,0.4);
+  animation:ringExpand ease-out both;pointer-events:none;
+}
+@keyframes ringExpand{0%{transform:scale(0);opacity:0.8;}100%{transform:scale(4);opacity:0;}}
+.btn-replay{
+  background:linear-gradient(135deg,var(--pink),var(--purple));color:white;
+  font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;
+  padding:16px 50px;border-radius:50px;border:none;cursor:pointer;
+  box-shadow:0 6px 0 rgba(0,0,0,0.3),0 0 30px rgba(255,107,157,0.5);
+  animation:messageFade 1.2s 7s both;margin-top:10px;
+  transition:all 0.2s;
+}
+.btn-replay:hover{transform:translateY(-3px);box-shadow:0 9px 0 rgba(0,0,0,0.3),0 0 50px rgba(255,107,157,0.8);}
+.btn-replay:active{transform:translateY(3px);}
+
+/* NOTIFICATIONS */
+.notif{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,0.97);border-radius:50px;padding:10px 22px;
+  font-weight:800;font-size:15px;z-index:999;box-shadow:0 5px 20px rgba(0,0,0,0.2);
+  animation:notifAnim 2.5s forwards;pointer-events:none;white-space:nowrap;
+}
+@keyframes notifAnim{0%{opacity:0;transform:translateX(-50%) translateY(-20px);}15%{opacity:1;transform:translateX(-50%) translateY(0);}75%{opacity:1;transform:translateX(-50%) translateY(0);}100%{opacity:0;transform:translateX(-50%) translateY(-20px);}}
+
+/* SCROLLBAR */
+#kitchenArea::-webkit-scrollbar{width:6px;}
+#kitchenArea::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);}
+#kitchenArea::-webkit-scrollbar-thumb{background:rgba(255,107,157,0.4);border-radius:3px;}
+
+/* ======================== MOBILE RESPONSIVE ======================== */
+@media (max-width: 768px) {
+
+  /* --- TITLE SCREEN --- */
+  .title-logo { font-size: 46px; }
+  .title-emoji { font-size: 40px; }
+  .title-sub { font-size: 15px; margin: 8px 0 4px; }
+  .birthday-badge { font-size: 13px; padding: 8px 18px; margin: 8px 0 22px; }
+  .btn-play { font-size: 20px; padding: 15px 45px; }
+
+  /* --- LEVEL SELECT --- */
+  #levelScreen { justify-content: flex-start; padding-top: 20px; }
+  .level-title { font-size: 30px; margin-bottom: 16px; }
+  .levels-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px 12px;
+    max-width: 100%;
+  }
+  .level-btn { width: 72px; height: 72px; border-radius: 14px; font-size: 15px; }
+  .level-btn .lvl-emoji { font-size: 20px; }
+  .level-btn .stars { font-size: 10px; }
+
+  /* --- HUD --- */
+  #hud { height: 52px; padding: 0 12px; }
+  .hud-score { font-size: 20px; }
+  .hud-info { font-size: 13px; gap: 5px; }
+  #hudTimer { font-size: 18px !important; }
+  #hudLevel { font-size: 11px !important; opacity: 0.85; }
+  #hudGoal { font-size: 10px !important; opacity: 0.75; }
+
+  /* --- GAME AREA: column layout, kitchen at bottom --- */
+  #gameArea {
+    top: 52px;
+    flex-direction: column;
+  }
+
+  /* Restaurant takes all remaining width/height */
+  #restaurantArea {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+  }
+
+  /* Kitchen becomes a horizontal bottom strip */
+  #kitchenArea {
+    width: 100%;
+    height: 160px;
+    flex-shrink: 0;
+    flex-direction: column;
+    padding: 6px 10px 8px;
+    gap: 5px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #2D1B33, #3D2B43);
+  }
+
+  .kitchen-title {
+    font-size: 14px;
+    margin-bottom: 0;
+    text-align: left;
+    padding: 0 4px;
+  }
+
+  /* Menu items scroll horizontally */
+  #menuItems {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,107,157,0.4) transparent;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    align-items: stretch;
+  }
+  #menuItems::-webkit-scrollbar { height: 3px; }
+  #menuItems::-webkit-scrollbar-thumb { background: rgba(255,107,157,0.4); border-radius: 2px; }
+
+  .menu-item {
+    flex-direction: column;
+    align-items: center;
+    min-width: 95px;
+    max-width: 95px;
+    padding: 8px 6px;
+    gap: 2px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .dish-emoji { font-size: 26px; }
+  .dish-name { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+  .dish-time { font-size: 9px; }
+  .dish-price { font-size: 11px; }
+  .cook-status { font-size: 9px; }
+
+  /* --- TABLE ZONES --- */
+  .customer { font-size: 26px; }
+  .customer-name { font-size: 9px; }
+  .patience-bar { width: 50px; height: 5px; }
+  .speech-bubble { font-size: 16px; top: -38px; padding: 4px 8px; }
+
+  /* --- ORDER PANEL --- */
+  #orderPanel {
+    bottom: 170px; /* sits above kitchen */
+    min-width: 260px;
+    max-width: calc(100vw - 30px);
+    padding: 12px 15px;
+    border-radius: 16px;
+  }
+  #orderPanel h3 { font-size: 16px; margin-bottom: 8px; }
+  .order-item { font-size: 13px; padding: 6px 12px; }
+  .btn-green { font-size: 13px; padding: 9px 18px; }
+  .btn-sm { font-size: 13px; padding: 9px 18px; }
+
+  /* --- LEVEL COMPLETE --- */
+  .complete-card { padding: 25px 20px; max-width: calc(100vw - 40px); border-radius: 20px; }
+  .complete-title { font-size: 28px; }
+  .complete-stars { font-size: 36px; margin: 10px 0; }
+  .complete-score { font-size: 18px; }
+  .complete-tip { font-size: 13px; margin-bottom: 15px; }
+  .btn-pink { font-size: 15px; padding: 12px 28px; }
+
+  /* --- CAKE SCREEN --- */
+  .cake-hud { padding: 10px 15px; }
+  .cake-hud-title { font-size: 15px; }
+  .cake-timer-display { font-size: 15px; padding: 6px 14px; }
+
+  .cake-main {
+    flex-direction: column;
+    padding: 10px 12px;
+    gap: 10px;
+    align-items: stretch;
+    overflow-y: auto;
+  }
+
+  .recipe-card { min-width: unset; width: 100%; padding: 14px; }
+  .recipe-title { font-size: 16px; margin-bottom: 10px; }
+  .recipe-step { padding: 7px 8px; margin-bottom: 5px; }
+  .step-num { width: 24px; height: 24px; font-size: 12px; }
+  .step-emoji { font-size: 18px; }
+  .step-text { font-size: 12px; }
+
+  .cake-workbench { width: 100%; gap: 10px; }
+  .workbench-table { min-height: 100px; padding: 12px; gap: 8px; border-radius: 18px; }
+  .ingredient-btn { min-width: 72px; padding: 8px 10px; border-radius: 14px; }
+  .ingredient-emoji { font-size: 28px; }
+  .ingredient-name { font-size: 10px; }
+
+  .cake-preview-area { min-width: unset; width: 100%; padding: 12px; flex-direction: row; justify-content: center; gap: 15px; }
+  .cake-build { font-size: 50px; min-height: auto; }
+  .cake-preview-label { font-size: 11px; }
+  #cakeProgress { font-size: 11px !important; }
+
+  .action-row { gap: 10px; justify-content: center; }
+  .cake-action-btn { font-size: 14px; padding: 10px 22px; }
+
+  /* --- BIRTHDAY SCREEN --- */
+  .birthday-title { font-size: 52px; }
+  .birthday-num { font-size: 80px; }
+  .birthday-message { font-size: 20px; margin: 10px 0 8px; }
+  .birthday-sub { font-size: 13px; padding: 14px 18px; margin-bottom: 15px; line-height: 1.7; }
+  .cake-big { font-size: 70px; }
+  .btn-replay { font-size: 16px; padding: 13px 35px; }
+}
+
+/* Extra small screens (iPhone SE, older Androids) */
+@media (max-width: 380px) {
+  .title-logo { font-size: 38px; }
+  .levels-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .level-btn { width: 62px; height: 62px; }
+  #kitchenArea { height: 150px; }
+  .menu-item { min-width: 82px; max-width: 82px; }
+  .birthday-title { font-size: 42px; }
+  .birthday-num { font-size: 65px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="titleScreen" class="screen active">
+  <div class="cake-stars-bg" id="titleStars"></div>
+  <div class="floating-item" style="left:5%;animation-duration:7s;animation-delay:0s;">🍕</div>
+  <div class="floating-item" style="left:15%;animation-duration:9s;animation-delay:2s;">🍣</div>
+  <div class="floating-item" style="left:25%;animation-duration:6s;animation-delay:4s;">🍔</div>
+  <div class="floating-item" style="left:75%;animation-duration:8s;animation-delay:1s;">🍰</div>
+  <div class="floating-item" style="left:85%;animation-duration:10s;animation-delay:3s;">🍩</div>
+  <div class="floating-item" style="left:90%;animation-duration:7s;animation-delay:5s;">🌮</div>
+  <span class="title-emoji">👩‍🍳</span>
+  <div class="title-logo">Esther Resto</div>
+  <div class="title-sub">Le Jeu de Cuisine Ultime</div>
+  <div class="birthday-badge">🎂 Édition Spéciale 21 Ans 🎂</div>
+  <button class="btn btn-play" onclick="onClickPlay()">JOUER !</button>
+  <button class="btn btn-sm" style="margin-top:10px;z-index:1;background:rgba(255,255,255,0.25);color:white;border:2px solid rgba(255,255,255,0.5);" onclick="showLeaderboard()">🏆 Classement</button>
+  <div style="margin-top:15px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;z-index:1;text-align:center;">21 niveaux • Gestion de restaurant • Recettes spéciales</div>
+  <div id="saveIndicator" style="margin-top:8px;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;z-index:1;text-align:center;"></div>
+</div>
+
+<!-- ===== NAME SCREEN ===== -->
+<div id="nameScreen" class="screen" style="background:linear-gradient(135deg,#FF6B9D 0%,#FF8FB1 40%,#FFD1DC 100%);overflow:hidden;">
+  <div class="cake-stars-bg" id="nameStars"></div>
+  <span style="font-size:60px;z-index:1;">👩‍🍳</span>
+  <div class="title-logo" style="font-size:52px;margin-bottom:10px;">Esther Resto</div>
+  <div style="z-index:1;background:rgba(255,255,255,0.2);border-radius:24px;padding:28px 32px;text-align:center;max-width:340px;width:90%;backdrop-filter:blur(8px);">
+    <div style="color:white;font-weight:900;font-size:18px;margin-bottom:6px;">Comment tu t'appelles ? 🌸</div>
+    <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-bottom:16px;">Pour sauvegarder ta progression et voir ton classement</div>
+    <input id="nameInput" type="text" placeholder="Ton prénom..." maxlength="20"
+      style="width:100%;padding:14px 18px;border-radius:50px;border:none;font-family:Nunito,sans-serif;font-size:18px;font-weight:800;text-align:center;outline:none;margin-bottom:14px;"/>
+    <button class="btn btn-play" style="font-size:20px;padding:14px 50px;width:100%;" onclick="submitName()">C'est parti ! 🎉</button>
+    <div id="nameError" style="color:#FFD700;font-size:13px;font-weight:800;margin-top:10px;display:none;">Entre au moins 2 caractères 😊</div>
+  </div>
+</div>
+
+<!-- ===== LEADERBOARD SCREEN ===== -->
+<div id="leaderboardScreen" class="screen" style="background:linear-gradient(160deg,#FFF0F5,#FFE4F0);overflow-y:auto;">
+  <div class="level-title" style="margin-top:20px;">🏆 Classement</div>
+  <div id="leaderboardList" style="width:100%;max-width:500px;padding:0 16px 20px;"></div>
+  <button class="btn btn-sm" style="margin-bottom:20px;" onclick="showTitle()">← Retour</button>
+</div>
+
+<!-- ===== LEVEL SELECT ===== -->
+<div id="levelScreen" class="screen">
+  <div class="level-title">🗺️ Choix du Niveau</div>
+  <div class="levels-grid" id="levelsGrid"></div>
+  <button class="btn btn-sm" style="margin-top:20px;" onclick="showTitle()">← Retour</button>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="gameScreen" class="screen">
+  <div id="hud">
+    <div class="hud-info">
+      <span>⭐</span>
+      <span id="hudScore" class="hud-score">0</span>
+    </div>
+    <div class="hud-info" style="flex-direction:column;align-items:center;gap:2px;">
+      <span id="hudLevel" style="font-size:14px;opacity:0.8;">Niveau 1</span>
+      <span id="hudGoal" style="font-size:13px;opacity:0.7;">Objectif: 500pts</span>
+    </div>
+    <div class="hud-info" style="gap:12px;">
+      <span id="hudTimer" style="font-size:26px;">⏱️ 2:00</span>
+      <button id="pauseBtn" onclick="togglePause()" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">⏸️</button>
+    </div>
+    <div id="timerBar" style="width:100%;"></div>
+  </div>
+  <div id="gameArea">
+    <div id="restaurantArea"></div>
+    <div id="kitchenArea">
+      <div class="kitchen-title">🍳 Cuisine</div>
+      <div id="menuItems"></div>
+    </div>
+  </div>
+  <div id="orderPanel">
+    <h3 id="orderTitle">Commande</h3>
+    <div class="order-items" id="orderItems"></div>
+    <div class="order-btn-row">
+      <button class="btn btn-green" style="font-size:15px;padding:10px 25px;" onclick="serveCurrentTable()">✅ Servir</button>
+      <button class="btn btn-sm" onclick="closeOrderPanel()">✕ Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAUSE OVERLAY ===== -->
+<div id="pauseOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:999;flex-direction:column;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:30px;padding:40px 35px;text-align:center;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+    <div style="font-size:56px;margin-bottom:10px;">⏸️</div>
+    <div style="font-family:'Pacifico',cursive;font-size:30px;color:#FF6B9D;margin-bottom:8px;">Pause</div>
+    <div style="font-size:14px;color:#888;font-weight:700;margin-bottom:25px;">Ta progression est sauvegardée 💾</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button onclick="togglePause()" style="background:linear-gradient(135deg,#FF6B9D,#9B59B6);color:white;font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;padding:15px 40px;border:none;border-radius:50px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,0.2);">▶️ Reprendre</button>
+      <button onclick="pauseAndGoHome()" style="background:#f0f0f0;color:#555;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;padding:12px 30px;border:none;border-radius:50px;cursor:pointer;">🏠 Menu principal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LEVEL COMPLETE ===== -->
+<div id="levelComplete" class="screen">
+  <div class="complete-card">
+    <div class="complete-title" id="completeTitle">Niveau Réussi!</div>
+    <div class="complete-stars" id="completeStars">⭐⭐⭐</div>
+    <div class="complete-score" id="completeScore">Score: 1500</div>
+    <div class="complete-tip" id="completeTip">Excellent travail!</div>
+    <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-pink" onclick="nextLevel()">Niveau Suivant →</button>
+      <button class="btn btn-sm" onclick="replayLevel()">↺ Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LEVEL 21 : BIRTHDAY CAKE ===== -->
+<div id="cakeScreen" class="screen">
+  <div class="cake-stars-bg" id="cakeStars"></div>
+  <div class="cake-hud">
+    <div class="cake-hud-title">🎂 Niveau 21</div>
+    <div id="cakeTimerDisplay" class="cake-timer-display">⏱️ 3:00</div>
+  </div>
+  <div class="cake-main">
+    <div class="recipe-card">
+      <div class="recipe-title">📋 Recette</div>
+      <div id="recipeSteps"></div>
+    </div>
+    <div class="cake-workbench">
+      <div class="workbench-table" id="cakeWorkbench"></div>
+      <div class="action-row">
+        <button class="cake-action-btn btn-reset-cake" onclick="resetCake()">↺ Recommencer</button>
+        <button class="cake-action-btn btn-send" id="btnSendCake" onclick="sendCake()">🎂 Envoyer !</button>
+      </div>
+    </div>
+    <div class="cake-preview-area">
+      <div class="cake-preview-label">🎨 Votre Gâteau</div>
+      <div class="cake-build" id="cakeBuild">🫙</div>
+      <div id="cakeProgress" style="color:rgba(255,255,255,0.5);font-size:13px;font-weight:700;">0 / 7 étapes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BIRTHDAY FIREWORKS ===== -->
+<div id="birthdayScreen" class="screen">
+  <canvas id="fwCanvas"></canvas>
+  <div class="birthday-content">
+    <div class="cake-big">🎂</div>
+    <div class="birthday-title">Joyeux<br>Anniversaire</div>
+    <div class="birthday-num">21</div>
+    <div class="birthday-message">À toi, et seulement toi 🌹</div>
+    <div class="birthday-sub">
+      <span class="line">Tu viens de traverser 21 niveaux… comme tu traverses la vie :</span>
+      <span class="line">avec grâce, avec feu, avec ce sourire qui désarme tout. ✨</span>
+      <span class="line">J'aurais pu t'offrir des fleurs, des mots, des étoiles —</span>
+      <span class="line">j'ai choisi de construire quelque chose rien que pour toi.</span>
+      <span class="line">Parce que tu mérites qu'on pense à toi jusqu'au moindre détail. 💫</span>
+      <span class="line" style="margin-top:16px;display:block;">Tu es la personne à qui je veux dire <em>bonne nuit</em> chaque soir,</span>
+      <span class="line">celle dont le rire est ma chanson préférée,</span>
+      <span class="line">et dont la présence transforme n'importe quel moment en souvenir. 🌙</span>
+      <span class="line" style="margin-top:16px;display:block;font-size:13px;opacity:0.85;font-style:italic;letter-spacing:0.5px;">Joyeux anniversaire, mon amour. Pour tes 21 ans, et pour tous ceux que je veux passer près de toi. 🎂❤️</span>
+    </div>
+    <button class="btn-replay" onclick="showTitle()">💖 Rejouer</button>
+  </div>
+</div>
+
+<script>
+// ===================== GAME DATA =====================
+const LEVELS = [
+  {id:1,name:"Le Petit Café",emoji:"☕",theme:"cafe",tables:2,customers:6,time:90,goal:300,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"croissant",name:"Croissant",emoji:"🥐",price:80,cookTime:3}]},
+  {id:2,name:"Brunch du Matin",emoji:"🥞",theme:"cafe",tables:2,customers:8,time:100,goal:500,menu:[{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"oj",name:"Jus d'orange",emoji:"🍊",price:60,cookTime:1},{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2}]},
+  {id:3,name:"Heure de Pointe",emoji:"⚡",theme:"cafe",tables:3,customers:10,time:110,goal:800,menu:[{id:"tea",name:"Thé",emoji:"🍵",price:50,cookTime:2},{id:"muffin",name:"Muffin",emoji:"🧁",price:100,cookTime:5},{id:"sandwich",name:"Sandwich",emoji:"🥪",price:130,cookTime:4}]},
+  {id:4,name:"Brunch VIP",emoji:"👑",theme:"cafe",tables:3,customers:12,time:120,goal:1100,menu:[{id:"eggs",name:"Œufs Bénédict",emoji:"🍳",price:140,cookTime:6},{id:"smoothie",name:"Smoothie",emoji:"🥤",price:110,cookTime:3},{id:"waffle",name:"Gaufre",emoji:"🧇",price:120,cookTime:5}]},
+  {id:5,name:"Week-end Chargé",emoji:"📅",theme:"cafe",tables:4,customers:15,time:130,goal:1500,menu:[{id:"coffee",name:"Café",emoji:"☕",price:50,cookTime:2},{id:"pancake",name:"Pancakes",emoji:"🥞",price:90,cookTime:4},{id:"toast",name:"Toast Avocat",emoji:"🥑",price:160,cookTime:5}]},
+  {id:6,name:"Le Bistrot",emoji:"🥗",theme:"bistro",tables:3,customers:12,time:130,goal:1800,menu:[{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4},{id:"soup",name:"Soupe",emoji:"🍲",price:130,cookTime:5},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8}]},
+  {id:7,name:"Service du Midi",emoji:"🍝",theme:"bistro",tables:3,customers:14,time:140,goal:2200,menu:[{id:"pasta",name:"Pâtes Carbonara",emoji:"🍝",price:180,cookTime:6},{id:"risotto",name:"Risotto",emoji:"🍚",price:200,cookTime:8},{id:"salad",name:"Salade César",emoji:"🥗",price:150,cookTime:4}]},
+  {id:8,name:"Cuisine du Monde",emoji:"🌍",theme:"bistro",tables:4,customers:14,time:140,goal:2600,menu:[{id:"sushi",name:"Sushi",emoji:"🍣",price:220,cookTime:7},{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"curry",name:"Curry",emoji:"🍛",price:190,cookTime:7}]},
+  {id:9,name:"Dîner Romantique",emoji:"🕯️",theme:"bistro",tables:4,customers:16,time:150,goal:3000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"steak",name:"Entrecôte",emoji:"🥩",price:250,cookTime:8},{id:"wine",name:"Vin Rosé",emoji:"🍷",price:180,cookTime:2}]},
+  {id:10,name:"Grand Rush",emoji:"🔥",theme:"bistro",tables:5,customers:18,time:150,goal:3800,menu:[{id:"pizza",name:"Pizza",emoji:"🍕",price:170,cookTime:6},{id:"burger",name:"Burger Gourmet",emoji:"🍔",price:190,cookTime:5},{id:"pasta",name:"Pâtes",emoji:"🍝",price:180,cookTime:6}]},
+  {id:11,name:"Restaurant Étoilé",emoji:"⭐",theme:"luxury",tables:4,customers:14,time:150,goal:4500,menu:[{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"truffle",name:"Pasta Truffe",emoji:"🍝",price:380,cookTime:9},{id:"wine",name:"Grand Cru",emoji:"🍷",price:250,cookTime:2}]},
+  {id:12,name:"Soirée Prestige",emoji:"💎",theme:"luxury",tables:4,customers:16,time:160,goal:5200,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"scallop",name:"Saint-Jacques",emoji:"🐚",price:280,cookTime:7},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
+  {id:13,name:"Chef Invité",emoji:"👨‍🍳",theme:"luxury",tables:5,customers:16,time:160,goal:6000,menu:[{id:"ramen",name:"Ramen Premium",emoji:"🍜",price:300,cookTime:9},{id:"dim",name:"Dim Sum",emoji:"🥟",price:260,cookTime:7},{id:"sashimi",name:"Sashimi",emoji:"🐟",price:310,cookTime:8}]},
+  {id:14,name:"Gala Gourmand",emoji:"🎩",theme:"luxury",tables:5,customers:18,time:170,goal:7000,menu:[{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:15,name:"Service Final",emoji:"🏆",theme:"luxury",tables:6,customers:20,time:170,goal:8500,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"foie",name:"Foie Gras",emoji:"🦆",price:320,cookTime:8},{id:"wine",name:"Bordeaux",emoji:"🍷",price:250,cookTime:2},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:16,name:"Cuisine Asiatique",emoji:"🥢",theme:"asia",tables:5,customers:18,time:160,goal:9000,menu:[{id:"ramen",name:"Ramen",emoji:"🍜",price:300,cookTime:9},{id:"sushi",name:"Sushi Roll",emoji:"🍣",price:220,cookTime:7},{id:"dumplings",name:"Gyoza",emoji:"🥟",price:200,cookTime:6}]},
+  {id:17,name:"Fiesta Mexicaine",emoji:"🎉",theme:"mexico",tables:5,customers:20,time:160,goal:10000,menu:[{id:"taco",name:"Tacos",emoji:"🌮",price:160,cookTime:5},{id:"burrito",name:"Burrito",emoji:"🌯",price:200,cookTime:6},{id:"nachos",name:"Nachos",emoji:"🧀",price:180,cookTime:5}]},
+  {id:18,name:"Traiteur de Luxe",emoji:"🥘",theme:"luxury",tables:6,customers:20,time:170,goal:11500,menu:[{id:"curry",name:"Curry Royal",emoji:"🍛",price:250,cookTime:8},{id:"kebab",name:"Kebab Gourmet",emoji:"🥙",price:200,cookTime:6},{id:"champagne",name:"Champagne",emoji:"🥂",price:200,cookTime:1}]},
+  {id:19,name:"Nuit Gastronomique",emoji:"🌙",theme:"luxury",tables:6,customers:22,time:180,goal:13000,menu:[{id:"oyster",name:"Huîtres",emoji:"🦪",price:280,cookTime:5},{id:"steak",name:"Wagyu",emoji:"🥩",price:450,cookTime:10},{id:"wine",name:"Pétrus",emoji:"🍷",price:350,cookTime:2}]},
+  {id:20,name:"Le Grand Service",emoji:"👑",theme:"luxury",tables:7,customers:24,time:180,goal:15000,menu:[{id:"lobster",name:"Homard",emoji:"🦞",price:350,cookTime:10},{id:"truffle",name:"Truffe",emoji:"🍝",price:380,cookTime:9},{id:"champagne",name:"Dom Pérignon",emoji:"🥂",price:300,cookTime:1},{id:"dessert",name:"Soufflé",emoji:"🍮",price:280,cookTime:9}]},
+  {id:21,name:"Gâteau d'Anniversaire",emoji:"🎂",theme:"birthday",special:true}
+];
+
+// ===================== STATE =====================
+let gameState = {
+  currentLevel: 1,
+  scores: new Array(22).fill(0),
+  stars: new Array(22).fill(0),
+  unlocked: 1
+};
+
+// ===================== SUPABASE CONFIG =====================
+const SB_URL = 'https://umbiiqmwvxcfqwpabyjm.supabase.co';
+const SB_KEY = 'sb_publishable_HZ9wIn8hGAAlblsMlIpmXw_8YAK4jjP';
+const SB_HDR = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+let playerName = localStorage.getItem('estherResto_name') || '';
+let sbRowId    = localStorage.getItem('estherResto_rowId') || null;
+
+// ===================== SAVE / LOAD =====================
+async function saveProgress() {
+  try { localStorage.setItem('estherResto_save', JSON.stringify({ scores: gameState.scores, stars: gameState.stars, unlocked: gameState.unlocked })); } catch(e) {}
+  if (!playerName) return;
+  const payload = { player_name: playerName, unlocked: gameState.unlocked, stars: gameState.stars, best_scores: gameState.scores, updated_at: new Date().toISOString() };
+  try {
+    if (sbRowId) {
+      await fetch(`${SB_URL}/rest/v1/scores?id=eq.${sbRowId}`, { method:'PATCH', headers:{...SB_HDR,'Prefer':'return=minimal'}, body:JSON.stringify(payload) });
+    } else {
+      const res = await fetch(`${SB_URL}/rest/v1/scores`, { method:'POST', headers:{...SB_HDR,'Prefer':'return=representation'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if (data && data[0] && data[0].id) { sbRowId = data[0].id; localStorage.setItem('estherResto_rowId', sbRowId); }
+    }
+  } catch(e) {}
+}
+
+async function loadFromSupabase() {
+  if (!playerName) return false;
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/scores?player_name=eq.${encodeURIComponent(playerName)}&order=updated_at.desc&limit=1`, { headers: SB_HDR });
+    const data = await res.json();
+    if (data && data[0]) {
+      const row = data[0];
+      sbRowId = row.id; localStorage.setItem('estherResto_rowId', sbRowId);
+      if (row.stars)       gameState.stars    = row.stars;
+      if (row.best_scores) gameState.scores   = row.best_scores;
+      if (row.unlocked)    gameState.unlocked = row.unlocked;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+async function fetchLeaderboard() {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/scores?order=unlocked.desc,updated_at.desc&limit=20`, { headers: SB_HDR });
+    return await res.json();
+  } catch(e) { return []; }
+}
+
+function loadProgressLocal() {
+  try {
+    const raw = localStorage.getItem('estherResto_save');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.scores)   gameState.scores   = data.scores;
+    if (data.stars)    gameState.stars    = data.stars;
+    if (data.unlocked) gameState.unlocked = data.unlocked;
+  } catch(e) {}
+}
+loadProgressLocal();
+
+// ===================== PAUSE =====================
+let isPaused = false;
+function togglePause() {
+  if (!gs || !gs.started) return;
+  isPaused = !isPaused;
+  const overlay = document.getElementById('pauseOverlay');
+  if (isPaused) {
+    overlay.style.display = 'flex';
+    document.getElementById('pauseBtn').textContent = '▶️';
+    if (gameTimer)  { clearInterval(gameTimer);  gameTimer  = null; }
+    if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
+    Object.keys(cookTimers).forEach(k => clearInterval(cookTimers[k]));
+    cookTimers = {};
+  } else {
+    overlay.style.display = 'none';
+    document.getElementById('pauseBtn').textContent = '⏸️';
+    gameTimer  = setInterval(tickGame, 1000);
+    spawnTimer = setInterval(trySpawnCustomer, 4000);
+    // relance cuissons en attente
+    gs.level.menu.forEach(item => {
+      const cook = gs.cooking[item.id];
+      if (cook && !cook.ready) {
+        const remaining = Math.ceil(item.cookTime * (1 - cook.progress/100));
+        let elapsed2 = 0;
+        cookTimers[item.id] = setInterval(() => {
+          if (!gs || !gs.started) { clearInterval(cookTimers[item.id]); return; }
+          elapsed2++;
+          const pct = Math.min(100, Math.round(cook.progress + (elapsed2/remaining)*100));
+          cook.progress = pct;
+          updateMenuItemUI(item.id, cook);
+          if (elapsed2 >= remaining) {
+            clearInterval(cookTimers[item.id]);
+            if (gs.cooking[item.id]) { gs.cooking[item.id].ready = true; gs.cooking[item.id].progress=100; }
+            updateMenuItemUI(item.id, gs.cooking[item.id]);
+            showNotif(`${item.emoji} ${item.name} est prêt !`);
+          }
+        }, 1000);
+      }
+    });
+  }
+}
+function pauseAndGoHome() {
+  isPaused = false;
+  document.getElementById('pauseOverlay').style.display = 'none';
+  document.getElementById('pauseBtn').textContent = '⏸️';
+  showTitle();
+}
+
+let gs = null;
+
+// ===================== SCREENS =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showTitle() { stopGame(); showScreen('titleScreen'); }
+function showLevelSelect() { buildLevelGrid(); showScreen('levelScreen'); }
+
+// ===================== LEVEL GRID =====================
+function buildLevelGrid() {
+  const grid = document.getElementById('levelsGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 21; i++) {
+    const lvl = LEVELS[i-1];
+    const btn = document.createElement('button');
+    btn.className = 'level-btn';
+    const isUnlocked = i <= gameState.unlocked;
+    const stars = gameState.stars[i] || 0;
+    if (!isUnlocked) {
+      btn.className += ' locked';
+      btn.innerHTML = `<span class="lvl-emoji">🔒</span><span style="font-size:13px;">${i}</span>`;
+    } else if (i === 21) {
+      btn.className += ' special';
+      btn.innerHTML = `<span class="lvl-emoji">🎂</span><span style="font-size:12px;">21</span>`;
+      btn.onclick = () => startCakeLevel();
+    } else if (stars > 0) {
+      btn.className += ' completed';
+      btn.innerHTML = `<span class="lvl-emoji">${lvl.emoji}</span><span style="font-size:13px;">${i}</span><span class="stars">${'⭐'.repeat(stars)}</span>`;
+      btn.onclick = () => startLevel(i);
+    } else {
+      btn.className += ' unlocked';
+      btn.innerHTML = `<span class="lvl-emoji">${lvl.emoji}</span><span style="font-size:13px;">${i}</span>`;
+      btn.onclick = () => startLevel(i);
+    }
+    grid.appendChild(btn);
+  }
+}
+
+// ===================== REGULAR GAME =====================
+const TABLE_POSITIONS = [
+  {x:5,y:8,w:40,h:36},{x:52,y:8,w:40,h:36},
+  {x:5,y:54,w:40,h:36},{x:52,y:54,w:40,h:36},
+  {x:5,y:8,w:28,h:36},{x:36,y:8,w:28,h:36},{x:67,y:8,w:28,h:36}
+];
+
+// Mobile-adjusted table positions (more space when kitchen is at bottom)
+const TABLE_POSITIONS_MOBILE = [
+  {x:4,y:5,w:44,h:44},{x:52,y:5,w:44,h:44},
+  {x:4,y:52,w:44,h:44},{x:52,y:52,w:44,h:44},
+  {x:2,y:5,w:30,h:44},{x:35,y:5,w:30,h:44},{x:68,y:5,w:30,h:44}
+];
+
+function isMobile() { return window.innerWidth <= 768; }
+
+const CUSTOMER_NAMES = ["Sophie","Emma","Léa","Chloé","Manon","Inès","Jade","Lucie","Camille","Alice","Nathan","Hugo","Lucas","Tom","Maxime"];
+const CUSTOMERS_EMOJIS = ["👩","👨","👩‍🦱","👩‍🦰","🧑","👩‍🦳","👨‍🦱","👩‍🦲","🧔","👴","👵","🧕"];
+
+let gameTimer = null;
+let spawnTimer = null;
+let cookTimers = {};
+
+function startLevel(lvlId) {
+  isPaused = false;
+  document.getElementById('pauseOverlay').style.display = 'none';
+  document.getElementById('pauseBtn').textContent = '⏸️';
+  stopGame();
+  const lvl = LEVELS[lvlId-1];
+  gs = {
+    level: lvl,
+    score: 0,
+    timeLeft: lvl.time,
+    tables: [],
+    customersServed: 0,
+    customersTotal: lvl.customers,
+    cooking: {},
+    selectedTable: null,
+    started: true
+  };
+  buildGameUI(lvl);
+  showScreen('gameScreen');
+  document.getElementById('hudLevel').textContent = `Niveau ${lvlId}: ${lvl.name}`;
+  document.getElementById('hudGoal').textContent = `Objectif: ${lvl.goal} pts`;
+  updateScore(0);
+  updateTimerDisplay();
+  spawnCustomers();
+  gameTimer = setInterval(tickGame, 1000);
+  spawnTimer = setInterval(() => trySpawnCustomer(), 4000);
+}
+
+function buildGameUI(lvl) {
+  const rest = document.getElementById('restaurantArea');
+  rest.innerHTML = '';
+  gs.tables = [];
+  const count = Math.min(lvl.tables, 7);
+  const mobile = isMobile();
+  // Choose positions based on table count and device
+  let positions;
+  if (count <= 2) {
+    positions = mobile
+      ? [{x:8,y:10,w:38,h:75},{x:54,y:10,w:38,h:75}]
+      : [{x:5,y:10,w:22,h:65},{x:33,y:10,w:22,h:65}];
+  } else if (count <= 4) {
+    positions = mobile
+      ? [{x:4,y:5,w:44,h:44},{x:52,y:5,w:44,h:44},{x:4,y:52,w:44,h:44},{x:52,y:52,w:44,h:44}]
+      : [{x:5,y:10,w:22,h:28},{x:33,y:10,w:22,h:28},{x:5,y:50,w:22,h:28},{x:33,y:50,w:22,h:28}];
+  } else if (count <= 5) {
+    positions = mobile
+      ? [{x:2,y:3,w:30,h:44},{x:35,y:3,w:30,h:44},{x:68,y:3,w:30,h:44},{x:10,y:52,w:38,h:44},{x:52,y:52,w:38,h:44}]
+      : [{x:5,y:10,w:22,h:28},{x:33,y:10,w:22,h:28},{x:61,y:10,w:22,h:28},{x:5,y:50,w:22,h:28},{x:33,y:50,w:22,h:28}];
+  } else if (count <= 6) {
+    positions = mobile
+      ? [{x:2,y:3,w:30,h:44},{x:35,y:3,w:30,h:44},{x:68,y:3,w:30,h:44},{x:2,y:52,w:30,h:44},{x:35,y:52,w:30,h:44},{x:68,y:52,w:30,h:44}]
+      : [{x:5,y:10,w:22,h:28},{x:33,y:10,w:22,h:28},{x:61,y:10,w:22,h:28},{x:5,y:50,w:22,h:28},{x:33,y:50,w:22,h:28},{x:61,y:50,w:22,h:28}];
+  } else {
+    positions = mobile
+      ? [{x:1,y:3,w:30,h:42},{x:35,y:3,w:30,h:42},{x:68,y:3,w:30,h:42},{x:1,y:52,w:30,h:42},{x:35,y:52,w:30,h:42},{x:68,y:52,w:30,h:42},{x:17,y:3,w:30,h:42}]
+      : [{x:5,y:10,w:22,h:28},{x:33,y:10,w:22,h:28},{x:61,y:10,w:22,h:28},{x:5,y:50,w:22,h:28},{x:33,y:50,w:22,h:28},{x:61,y:50,w:22,h:28},{x:17,y:5,w:22,h:28}];
+  }
+
+  for (let i = 0; i < count; i++) {
+    const pos = positions[i] || positions[positions.length-1];
+    const zone = document.createElement('div');
+    zone.className = 'table-zone';
+    zone.style.cssText = `left:${pos.x}%;top:${pos.y}%;width:${pos.w}%;height:${pos.h}%;`;
+    zone.id = `table_${i}`;
+    zone.innerHTML = `<span style="font-size:${mobile?'26px':'30px'};">🪑</span><span style="font-size:${mobile?'10px':'12px'};color:#999;font-weight:700;">Table ${i+1}</span>`;
+    zone.onclick = () => clickTable(i);
+    rest.appendChild(zone);
+    gs.tables.push({id:i,state:'empty',customer:null,order:null,cookingItem:null,waitTimer:0,eatTimer:0,patienceMax:30,patience:30});
+  }
+
+  const menuDiv = document.getElementById('menuItems');
+  menuDiv.innerHTML = '';
+  gs.level.menu.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.id = `menu_${item.id}`;
+    div.innerHTML = `
+      <span class="dish-emoji">${item.emoji}</span>
+      <div class="dish-info">
+        <div class="dish-name">${item.name}</div>
+        <div class="dish-time">⏱️ ${item.cookTime}s</div>
+        <div class="cook-progress"><div class="cook-fill" id="cf_${item.id}" style="width:0%"></div></div>
+        <div class="cook-status" id="cs_${item.id}">Disponible</div>
+      </div>
+      <div class="dish-price">${item.price}💰</div>
+    `;
+    div.onclick = () => cookDish(item.id);
+    menuDiv.appendChild(div);
+  });
+}
+
+function spawnCustomers() {
+  const tables = gs.tables.filter(t => t.state === 'empty');
+  const toFill = Math.min(tables.length, Math.floor(gs.tables.length * 0.5) + 1);
+  for (let i = 0; i < toFill; i++) {
+    if (tables[i]) spawnAtTable(tables[i].id);
+  }
+}
+
+function trySpawnCustomer() {
+  if (!gs || !gs.started) return;
+  const empty = gs.tables.filter(t => t.state === 'empty');
+  if (empty.length > 0 && gs.customersServed < gs.customersTotal - gs.tables.filter(t=>t.state!=='empty').length) {
+    const t = empty[Math.floor(Math.random() * empty.length)];
+    spawnAtTable(t.id);
+  }
+}
+
+function spawnAtTable(tableId) {
+  const t = gs.tables[tableId];
+  if (!t || t.state !== 'empty') return;
+  const menu = gs.level.menu;
+  const item = menu[Math.floor(Math.random() * menu.length)];
+  const name = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
+  const emoji = CUSTOMERS_EMOJIS[Math.floor(Math.random() * CUSTOMERS_EMOJIS.length)];
+  t.state = 'needs-order';
+  t.customer = {name, emoji, item};
+  t.patience = 30;
+  t.patienceMax = 30;
+  renderTable(tableId);
+}
+
+function renderTable(tableId) {
+  const t = gs.tables[tableId];
+  const zone = document.getElementById(`table_${tableId}`);
+  if (!zone) return;
+  const mobile = isMobile();
+  zone.className = 'table-zone';
+  if (t.state === 'empty') {
+    zone.innerHTML = `<span style="font-size:${mobile?'26px':'30px'};">🪑</span><span style="font-size:${mobile?'10px':'12px'};color:#999;font-weight:700;">Table ${tableId+1}</span>`;
+    return;
+  }
+  const pct = Math.round((t.patience/t.patienceMax)*100);
+  const pColor = pct > 60 ? '#2ECC71' : pct > 30 ? '#F39C12' : '#E74C3C';
+  let icon = t.state==='needs-order'?'📋':t.state==='waiting-food'?t.customer.item.emoji:t.state==='eating'?'😋':'';
+  zone.innerHTML = `
+    <div class="speech-bubble">${icon}</div>
+    <span class="customer">${t.customer.emoji}</span>
+    <span class="customer-name">${t.customer.name}</span>
+    <div class="patience-bar"><div class="patience-fill" style="width:${pct}%;background:${pColor};"></div></div>
+  `;
+  zone.classList.add('has-customer');
+  if (t.state === 'needs-order') zone.classList.add('needs-order');
+  else if (t.state === 'waiting-food') zone.classList.add('waiting-food');
+  else if (t.state === 'eating') zone.classList.add('eating');
+}
+
+function clickTable(tableId) {
+  const t = gs.tables[tableId];
+  if (t.state === 'empty') return;
+  if (t.state === 'needs-order') {
+    t.state = 'waiting-food';
+    renderTable(tableId);
+    showOrderPanel(tableId);
+  } else if (t.state === 'waiting-food') {
+    showOrderPanel(tableId);
+  } else if (t.state === 'eating') {
+    addScore(50, document.getElementById(`table_${tableId}`));
+    showNotif('Pourboire ! +50💰');
+    t.state = 'empty'; t.customer = null;
+    renderTable(tableId);
+    gs.customersServed++;
+  }
+  gs.selectedTable = tableId;
+}
+
+let selectedTableId = null;
+function showOrderPanel(tableId) {
+  selectedTableId = tableId;
+  const t = gs.tables[tableId];
+  const panel = document.getElementById('orderPanel');
+  document.getElementById('orderTitle').textContent = `Commande de ${t.customer.name}`;
+  const items = document.getElementById('orderItems');
+  items.innerHTML = '';
+  const item = t.customer.item;
+  const cookItem = gs.cooking[item.id];
+  const isReady = cookItem && cookItem.ready;
+  const div = document.createElement('div');
+  div.className = 'order-item' + (isReady ? ' served' : '');
+  div.innerHTML = `${item.emoji} ${item.name} ${isReady ? '✅' : '⏳'}`;
+  items.appendChild(div);
+  panel.style.display = 'block';
+}
+
+function closeOrderPanel() {
+  document.getElementById('orderPanel').style.display = 'none';
+  selectedTableId = null;
+}
+
+function serveCurrentTable() {
+  if (selectedTableId === null) return;
+  const t = gs.tables[selectedTableId];
+  if (!t || t.state !== 'waiting-food') { closeOrderPanel(); return; }
+  const item = t.customer.item;
+  const cookItem = gs.cooking[item.id];
+  if (!cookItem || !cookItem.ready) { showNotif(`⚠️ ${item.name} pas encore prêt !`); return; }
+  const pct = t.patience / t.patienceMax;
+  const bonus = Math.round(item.price * (1 + pct * 0.5));
+  addScore(bonus, document.getElementById(`table_${selectedTableId}`));
+  gs.cooking[item.id] = null;
+  updateMenuItemUI(item.id, null);
+  t.state = 'eating'; t.eatTimer = 8;
+  renderTable(selectedTableId);
+  closeOrderPanel();
+  showNotif(`${item.emoji} Servi ! +${bonus}💰`);
+}
+
+function cookDish(dishId) {
+  const cook = gs.cooking[dishId];
+  if (cook && !cook.ready) { showNotif('⏳ Déjà en train de cuisiner !'); return; }
+  if (cook && cook.ready) { showNotif('✅ Déjà prêt ! Servez un client.'); return; }
+  const item = gs.level.menu.find(m => m.id === dishId);
+  if (!item) return;
+  gs.cooking[dishId] = {item, progress:0, ready:false};
+  updateMenuItemUI(dishId, gs.cooking[dishId]);
+  if (cookTimers[dishId]) clearInterval(cookTimers[dishId]);
+  const total = item.cookTime;
+  let elapsed = 0;
+  cookTimers[dishId] = setInterval(() => {
+    if (!gs || !gs.started) { clearInterval(cookTimers[dishId]); return; }
+    elapsed++;
+    const pct = Math.min(100, Math.round((elapsed/total)*100));
+    if (gs.cooking[dishId]) gs.cooking[dishId].progress = pct;
+    updateMenuItemUI(dishId, gs.cooking[dishId]);
+    if (elapsed >= total) {
+      clearInterval(cookTimers[dishId]);
+      if (gs.cooking[dishId]) { gs.cooking[dishId].ready = true; gs.cooking[dishId].progress=100; }
+      updateMenuItemUI(dishId, gs.cooking[dishId]);
+      showNotif(`${item.emoji} ${item.name} est prêt !`);
+    }
+  }, 1000);
+}
+
+function updateMenuItemUI(dishId, cook) {
+  const div = document.getElementById(`menu_${dishId}`);
+  const fill = document.getElementById(`cf_${dishId}`);
+  const status = document.getElementById(`cs_${dishId}`);
+  if (!div) return;
+  div.className = 'menu-item';
+  if (!cook) { fill.style.width='0%'; status.textContent='Disponible'; return; }
+  if (cook.ready) { div.classList.add('ready'); fill.style.width='100%'; status.textContent='✅ Prêt !'; }
+  else { div.classList.add('cooking'); fill.style.width=cook.progress+'%'; status.textContent=`Cuisson... ${cook.progress}%`; }
+}
+
+function tickGame() {
+  if (!gs || !gs.started) return;
+  gs.timeLeft--;
+  updateTimerDisplay();
+  gs.tables.forEach((t,i) => {
+    if (t.state === 'waiting-food' || t.state === 'needs-order') {
+      t.patience = Math.max(0, t.patience - 1);
+      renderTable(i);
+      if (t.patience === 0) {
+        t.state = 'empty'; t.customer = null;
+        renderTable(i);
+        addScore(-50, null);
+        showNotif('😡 Un client est parti ! -50💰');
+        gs.customersServed++;
+      }
+    } else if (t.state === 'eating') {
+      t.eatTimer--;
+      if (t.eatTimer <= 0) { t.state = 'empty'; t.customer = null; renderTable(i); gs.customersServed++; }
+    }
+  });
+  if (gs.timeLeft <= 0) endGame();
+}
+
+function updateTimerDisplay() {
+  if (!gs) return;
+  const m = Math.floor(gs.timeLeft/60);
+  const s = gs.timeLeft%60;
+  document.getElementById('hudTimer').textContent = `⏱️ ${m}:${s.toString().padStart(2,'0')}`;
+  const pct = (gs.timeLeft/gs.level.time)*100;
+  document.getElementById('timerBar').style.width = pct+'%';
+  document.getElementById('timerBar').style.background = pct > 50 ? '#FFD700' : pct > 25 ? '#FF8C42' : '#FF6B6B';
+}
+
+function updateScore() { document.getElementById('hudScore').textContent = gs.score; }
+
+function addScore(pts, elem) {
+  if (!gs) return;
+  gs.score = Math.max(0, gs.score + pts);
+  updateScore();
+  if (elem && pts > 0) {
+    const fl = document.createElement('div');
+    fl.className = 'float-score';
+    fl.textContent = `+${pts}💰`;
+    const rect = elem.getBoundingClientRect();
+    fl.style.left = (rect.left + rect.width/2 - 30) + 'px';
+    fl.style.top = (rect.top - 10) + 'px';
+    document.body.appendChild(fl);
+    setTimeout(() => fl.remove(), 1600);
+  }
+}
+
+function endGame() {
+  if (!gs || !gs.started) return;
+  gs.started = false;
+  stopGame();
+  const stars = gs.score >= gs.level.goal*1.5 ? 3 : gs.score >= gs.level.goal ? 2 : gs.score >= gs.level.goal*0.5 ? 1 : 0;
+  const prev = gameState.stars[gs.level.id] || 0;
+  if (stars > prev) { gameState.stars[gs.level.id] = stars; gameState.scores[gs.level.id] = gs.score; }
+  if (stars > 0 && gs.level.id >= gameState.unlocked) gameState.unlocked = Math.min(21, gs.level.id + 1);
+  saveProgress();
+  showLevelComplete(stars);
+}
+
+function showLevelComplete(stars) {
+  const titles = ['Presque...','Bon travail !','Super !','Parfait !'];
+  const tips = ['Essayez de servir plus vite !','Gérez votre cuisine en parallèle !','Excellent service !','Score parfait ! Vous êtes une vraie cheffe !'];
+  document.getElementById('completeTitle').textContent = (stars===0?'😢':'🎉 ') + titles[stars];
+  document.getElementById('completeStars').textContent = stars > 0 ? '⭐'.repeat(stars) + '☆'.repeat(3-stars) : '💔';
+  document.getElementById('completeScore').textContent = `Score: ${gs.score} / Objectif: ${gs.level.goal}`;
+  document.getElementById('completeTip').textContent = tips[stars];
+  showScreen('levelComplete');
+}
+
+function nextLevel() {
+  const next = gs ? gs.level.id + 1 : 1;
+  if (next === 21) { startCakeLevel(); return; }
+  if (next <= 21) startLevel(next);
+  else showLevelSelect();
+}
+function replayLevel() { if (gs) startLevel(gs.level.id); }
+
+function stopGame() {
+  if (gameTimer) { clearInterval(gameTimer); gameTimer = null; }
+  if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
+  Object.keys(cookTimers).forEach(k => clearInterval(cookTimers[k]));
+  cookTimers = {};
+  if (gs) gs.started = false;
+}
+
+// ===================== LEVEL 21: BIRTHDAY CAKE =====================
+const CAKE_STEPS = [
+  {id:'flour', name:'Ajouter la farine', emoji:'🌾', needsIngredient:'flour'},
+  {id:'eggs',  name:'Casser les œufs',  emoji:'🥚', needsIngredient:'eggs'},
+  {id:'butter',name:'Incorporer le beurre', emoji:'🧈', needsIngredient:'butter'},
+  {id:'sugar', name:'Verser le sucre',   emoji:'🍬', needsIngredient:'sugar'},
+  {id:'bake',  name:'Enfourner le gâteau', emoji:'🔥', needsIngredient:'oven'},
+  {id:'cream', name:'Napper de crème',   emoji:'🍦', needsIngredient:'cream'},
+  {id:'candles',name:'Poser 21 bougies', emoji:'🕯️', needsIngredient:'candles'},
+];
+const CAKE_INGREDIENTS = [
+  {id:'flour',name:'Farine',emoji:'🌾'},{id:'eggs',name:'Œufs',emoji:'🥚'},
+  {id:'butter',name:'Beurre',emoji:'🧈'},{id:'sugar',name:'Sucre',emoji:'🍬'},
+  {id:'oven',name:'Four',emoji:'🔥'},{id:'cream',name:'Crème',emoji:'🍦'},
+  {id:'candles',name:'Bougies',emoji:'🕯️'},
+];
+const CAKE_PREVIEWS = ['🫙','🫙🌾','🫙🥚','🫙🧈','🫙🍬','🎂','🎂🍦','🎂🕯️'];
+
+let cakeState = null;
+let cakeTimerInterval = null;
+
+function startCakeLevel() {
+  stopGame();
+  cakeState = { currentStep: 0, done: [], timeLeft: 180, running: true };
+  buildCakeUI();
+  showScreen('cakeScreen');
+  buildCakeStars();
+  if (cakeTimerInterval) clearInterval(cakeTimerInterval);
+  cakeTimerInterval = setInterval(tickCake, 1000);
+}
+
+function buildCakeUI() {
+  const stepsDiv = document.getElementById('recipeSteps');
+  stepsDiv.innerHTML = '';
+  CAKE_STEPS.forEach((step,i) => {
+    const div = document.createElement('div');
+    div.className = 'recipe-step' + (i===0?' current':' pending');
+    div.id = `cstep_${step.id}`;
+    div.innerHTML = `<div class="step-num">${i+1}</div><span class="step-emoji">${step.emoji}</span><span class="step-text">${step.name}</span>`;
+    stepsDiv.appendChild(div);
+  });
+  const wb = document.getElementById('cakeWorkbench');
+  wb.innerHTML = '';
+  CAKE_INGREDIENTS.forEach(ing => {
+    const div = document.createElement('div');
+    div.className = 'ingredient-btn' + (ing.id === CAKE_STEPS[0].needsIngredient ? ' needed' : '');
+    div.id = `ing_${ing.id}`;
+    div.innerHTML = `<span class="ingredient-emoji">${ing.emoji}</span><span class="ingredient-name">${ing.name}</span>`;
+    div.onclick = () => addCakeIngredient(ing.id);
+    wb.appendChild(div);
+  });
+  updateCakePreview();
+}
+
+function addCakeIngredient(ingId) {
+  if (!cakeState || !cakeState.running) return;
+  const step = CAKE_STEPS[cakeState.currentStep];
+  if (!step) return;
+  if (ingId !== step.needsIngredient) {
+    showNotif(`❌ Il faut : ${step.emoji} ${step.name}`);
+    return;
+  }
+  cakeState.done.push(ingId);
+  const stepEl = document.getElementById(`cstep_${step.id}`);
+  if (stepEl) stepEl.className = 'recipe-step done';
+  const ingEl = document.getElementById(`ing_${ingId}`);
+  if (ingEl) { ingEl.className = 'ingredient-btn used'; ingEl.onclick = null; }
+  cakeState.currentStep++;
+  if (cakeState.currentStep < CAKE_STEPS.length) {
+    const next = CAKE_STEPS[cakeState.currentStep];
+    const nextEl = document.getElementById(`cstep_${next.id}`);
+    if (nextEl) nextEl.className = 'recipe-step current';
+    const nextIng = document.getElementById(`ing_${next.needsIngredient}`);
+    if (nextIng) nextIng.classList.add('needed');
+    showNotif(`✅ Parfait ! Étape ${cakeState.currentStep}/${CAKE_STEPS.length}`);
+  }
+  updateCakePreview();
+  if (cakeState.currentStep >= CAKE_STEPS.length) {
+    document.getElementById('btnSendCake').style.display = 'inline-block';
+    showNotif('🎂 Gâteau prêt ! Envoyez la commande !');
+    cakeState.running = false;
+    clearInterval(cakeTimerInterval);
+  }
+}
+
+function updateCakePreview() {
+  const step = Math.min(cakeState ? cakeState.currentStep : 0, CAKE_PREVIEWS.length-1);
+  document.getElementById('cakeBuild').textContent = CAKE_PREVIEWS[step];
+  document.getElementById('cakeProgress').textContent = `${step} / ${CAKE_STEPS.length} étapes`;
+}
+
+function resetCake() { clearInterval(cakeTimerInterval); startCakeLevel(); }
+
+function sendCake() {
+  if (!cakeState || cakeState.currentStep < CAKE_STEPS.length) return;
+  clearInterval(cakeTimerInterval);
+  gameState.stars[21] = 3;
+  gameState.unlocked = 21;
+  saveProgress();
+  showBirthdayScreen();
+}
+
+function tickCake() {
+  if (!cakeState || !cakeState.running) return;
+  cakeState.timeLeft--;
+  const m = Math.floor(cakeState.timeLeft/60);
+  const s = cakeState.timeLeft%60;
+  document.getElementById('cakeTimerDisplay').textContent = `⏱️ ${m}:${s.toString().padStart(2,'0')}`;
+  if (cakeState.timeLeft <= 0) {
+    cakeState.running = false;
+    clearInterval(cakeTimerInterval);
+    showNotif('⏰ Temps écoulé ! Recommencez !');
+    setTimeout(resetCake, 2000);
+  }
+}
+
+function buildCakeStars() {
+  const container = document.getElementById('cakeStars');
+  container.innerHTML = '';
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star-dot';
+    const size = Math.random() * 3 + 1;
+    star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;`;
+    container.appendChild(star);
+  }
+}
+
+// ===================== BIRTHDAY FIREWORKS =====================
+function showBirthdayScreen() {
+  showScreen('birthdayScreen');
+  spawnConfetti();
+  spawnFloatingHearts();
+  startFireworks();
+  spawnGlowRings();
+}
+
+function spawnConfetti() {
+  const screen = document.getElementById('birthdayScreen');
+  screen.querySelectorAll('.confetti-emoji').forEach(e => e.remove());
+  const confettis = ['🎊','🎉','⭐','✨','🌟','💖','🎈','🎀','🎂','🍾','💫','🌹','❤️','🥂','💕'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-emoji';
+    el.textContent = confettis[Math.floor(Math.random()*confettis.length)];
+    el.style.cssText = `left:${Math.random()*100}%;animation-duration:${3+Math.random()*6}s;animation-delay:${Math.random()*6}s;font-size:${18+Math.random()*30}px;`;
+    screen.appendChild(el);
+  }
+}
+
+function spawnFloatingHearts() {
+  const screen = document.getElementById('birthdayScreen');
+  const hearts = ['❤️','💕','💖','💗','💓','💝','🌹'];
+  function addHeart() {
+    const el = document.createElement('div');
+    el.className = 'heart-float';
+    el.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+    const x = 10 + Math.random() * 80;
+    const size = 20 + Math.random() * 30;
+    const dur = 2.5 + Math.random() * 3;
+    el.style.cssText = `left:${x}%;bottom:${10+Math.random()*20}%;font-size:${size}px;animation-duration:${dur}s;`;
+    screen.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000 + 500);
+  }
+  for (let i = 0; i < 12; i++) setTimeout(addHeart, i * 150);
+  const heartInterval = setInterval(addHeart, 600);
+  setTimeout(() => clearInterval(heartInterval), 20000);
+}
+
+function spawnGlowRings() {
+  const screen = document.getElementById('birthdayScreen');
+  function addRing() {
+    const ring = document.createElement('div');
+    ring.className = 'glow-ring';
+    const size = 80 + Math.random() * 120;
+    const x = 10 + Math.random() * 80;
+    const y = 10 + Math.random() * 80;
+    const dur = 1.8 + Math.random() * 1.2;
+    const colors = ['rgba(255,107,157,0.5)','rgba(255,215,0,0.5)','rgba(155,89,182,0.5)','rgba(255,140,66,0.4)'];
+    ring.style.cssText = `width:${size}px;height:${size}px;left:calc(${x}% - ${size/2}px);top:calc(${y}% - ${size/2}px);border-color:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${dur}s;`;
+    screen.appendChild(ring);
+    setTimeout(() => ring.remove(), dur * 1000 + 200);
+  }
+  for (let i = 0; i < 5; i++) setTimeout(addRing, i * 300 + 500);
+  const ringInterval = setInterval(addRing, 1200);
+  setTimeout(() => clearInterval(ringInterval), 15000);
+}
+
+function startFireworks() {
+  const canvas = document.getElementById('fwCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  let particles = [];
+  let rockets = [];
+  const colors = ['#FF6B9D','#FFD700','#FF6B6B','#4ECDC4','#9B59B6','#FF8C42','#ffffff','#FF8FB1','#FFA0D0','#FFE066'];
+
+  function Particle(x, y, color, vx, vy, size, decay) {
+    this.x=x; this.y=y; this.color=color;
+    this.vx=vx||((Math.random()-0.5)*14);
+    this.vy=vy||((Math.random()-0.5)*14-3);
+    this.alpha=1; this.radius=size||(Math.random()*4+1.5);
+    this.decay=decay||(Math.random()*0.018+0.007);
+    this.gravity=0.12; this.trail=[];
+  }
+
+  function Rocket(x) {
+    this.x=x; this.y=canvas.height;
+    this.vy=-(12+Math.random()*8);
+    this.targetY=80+Math.random()*(canvas.height*0.45);
+    this.color=colors[Math.floor(Math.random()*colors.length)];
+    this.exploded=false; this.trail=[];
+  }
+
+  function explode(x, y, color) {
+    const count = 100 + Math.floor(Math.random()*80);
+    for (let i=0; i<count; i++) particles.push(new Particle(x,y,color));
+    for (let i=0; i<30; i++) {
+      particles.push(new Particle(x,y,'#ffffff',(Math.random()-0.5)*20,(Math.random()-0.5)*20,1.5,0.04));
+    }
+    for (let i=0; i<24; i++) {
+      const angle = (i/24)*Math.PI*2;
+      const speed = 6+Math.random()*4;
+      particles.push(new Particle(x,y,color,Math.cos(angle)*speed,Math.sin(angle)*speed,3,0.025));
+    }
+  }
+
+  function launchRocket() {
+    rockets.push(new Rocket(80 + Math.random()*(canvas.width-160)));
+  }
+
+  setTimeout(()=>{ explode(canvas.width*0.25,canvas.height*0.3,'#FF6B9D'); explode(canvas.width*0.75,canvas.height*0.25,'#FFD700'); explode(canvas.width*0.5,canvas.height*0.35,'#9B59B6'); }, 400);
+  setTimeout(()=>{ explode(canvas.width*0.15,canvas.height*0.4,'#4ECDC4'); explode(canvas.width*0.85,canvas.height*0.38,'#FF8C42'); }, 900);
+
+  let rocketInterval = setInterval(launchRocket, 700);
+  setTimeout(()=>clearInterval(rocketInterval), 18000);
+
+  function animate() {
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    rockets = rockets.filter(r => !r.exploded);
+    rockets.forEach(r => {
+      r.trail.push({x:r.x,y:r.y});
+      if (r.trail.length > 8) r.trail.shift();
+      r.y += r.vy; r.vy += 0.25;
+      r.trail.forEach((pt,i)=>{
+        ctx.beginPath(); ctx.arc(pt.x,pt.y,2,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,215,0,${(i/r.trail.length)*0.6})`; ctx.fill();
+      });
+      ctx.beginPath(); ctx.arc(r.x,r.y,3,0,Math.PI*2); ctx.fillStyle=r.color; ctx.fill();
+      if (r.y <= r.targetY) { explode(r.x,r.y,r.color); r.exploded=true; }
+    });
+    particles.forEach(p => {
+      p.trail.push({x:p.x,y:p.y});
+      if (p.trail.length>4) p.trail.shift();
+      p.x+=p.vx; p.vy+=p.gravity; p.y+=p.vy;
+      p.alpha-=p.decay; p.vx*=0.97; p.vy*=0.97;
+      if (p.alpha>0) {
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+        ctx.fillStyle=`rgba(${hexToRgb(p.color)},${p.alpha})`; ctx.fill();
+      }
+    });
+    particles=particles.filter(p=>p.alpha>0);
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+function hexToRgb(hex) {
+  return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
+}
+
+// ===================== NOTIFICATIONS =====================
+let notifTimeout = null;
+function showNotif(msg) {
+  const existing = document.querySelector('.notif');
+  if (existing) existing.remove();
+  const n = document.createElement('div');
+  n.className = 'notif';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  if (notifTimeout) clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => n && n.remove(), 2600);
+}
+
+// ===================== NAME SCREEN =====================
+function onClickPlay() {
+  if (!playerName) { showScreen('nameScreen'); buildStarsBg('nameStars'); }
+  else showLevelSelect();
+}
+
+function submitName() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (val.length < 2) { document.getElementById('nameError').style.display='block'; return; }
+  playerName = val;
+  localStorage.setItem('estherResto_name', playerName);
+  document.getElementById('nameError').style.display='none';
+  // Try loading from Supabase
+  showNotif('⏳ Chargement de ta progression...');
+  loadFromSupabase().then(found => {
+    if (found) showNotif('✅ Progression chargée depuis le cloud !');
+    else showNotif('👋 Bienvenue ' + playerName + ' !');
+    updateSaveIndicator();
+    showLevelSelect();
+  });
+}
+
+// ===================== LEADERBOARD =====================
+async function showLeaderboard() {
+  showScreen('leaderboardScreen');
+  const list = document.getElementById('leaderboardList');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:14px;font-weight:700;">⏳ Chargement...</div>';
+  const rows = await fetchLeaderboard();
+  if (!rows || rows.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:14px;font-weight:700;">Aucun joueur encore. Sois la première ! 🌸</div>';
+    return;
+  }
+  list.innerHTML = '';
+  rows.forEach((row, i) => {
+    const totalStars = (row.stars || []).reduce((a,b)=>a+b, 0);
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+    const isMe = row.player_name === playerName;
+    const card = document.createElement('div');
+    card.style.cssText = `background:${isMe?'rgba(255,107,157,0.15)':'white'};border:${isMe?'2px solid #FF6B9D':'1px solid rgba(0,0,0,0.08)'};border-radius:16px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);`;
+    card.innerHTML = `
+      <span style="font-size:24px;width:36px;text-align:center;">${medal}</span>
+      <div style="flex:1;">
+        <div style="font-weight:900;font-size:16px;color:#2D1B33;">${row.player_name}${isMe?' <span style="font-size:11px;color:#FF6B9D;">← toi</span>':''}</div>
+        <div style="font-size:13px;color:#888;margin-top:2px;">Niveau ${row.unlocked} débloqué • ${totalStars} ⭐</div>
+      </div>
+      <div style="font-size:20px;">${row.unlocked >= 21 ? '🎂' : row.unlocked >= 15 ? '🔥' : row.unlocked >= 10 ? '⚡' : '🌱'}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ===================== INIT =====================
+function buildStarsBg(id) {
+  const bg = document.getElementById(id);
+  if (!bg || bg.children.length > 0) return;
+  for (let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='star-dot';
+    const sz=Math.random()*3+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;background:white;`;
+    bg.appendChild(s);
+  }
+}
+
+function updateSaveIndicator() {
+  const ind = document.getElementById('saveIndicator');
+  if (!ind) return;
+  if (playerName && gameState.unlocked > 1) {
+    const total = gameState.stars.reduce((a,b)=>a+b,0);
+    ind.textContent = `☁️ ${playerName} — Niveau ${gameState.unlocked} • ${total} ⭐`;
+  } else if (playerName) {
+    ind.textContent = `👋 Bonjour ${playerName} !`;
+  }
+}
+
+window.onload = () => {
+  buildStarsBg('titleStars');
+  updateSaveIndicator();
+  // Si nom déjà connu, charger depuis Supabase silencieusement
+  if (playerName) {
+    loadFromSupabase().then(() => updateSaveIndicator());
+  }
+};
+
+window.nextLevel = nextLevel;
+window.replayLevel = replayLevel;
+window.showTitle = showTitle;
+window.showLevelSelect = showLevelSelect;
+window.startCakeLevel = startCakeLevel;
+window.sendCake = sendCake;
+window.resetCake = resetCake;
+window.serveCurrentTable = serveCurrentTable;
+window.closeOrderPanel = closeOrderPanel;
+window.togglePause = togglePause;
+window.pauseAndGoHome = pauseAndGoHome;
+window.onClickPlay = onClickPlay;
+window.submitName = submitName;
+window.showLeaderboard = showLeaderboard;
+</script>
+</body>
+</html>
